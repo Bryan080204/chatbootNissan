@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/Bryan080204/chatbootNissan/issues"
   },
-  "homepage": "https://github.com/Bryan080204/chatbootNissan#readme"
+  "homepage": "https://github.com/Bryan080204/chatbootNissan#readme",
+  "dependencies": {
+    "dotenv": "^18.0.6",
+    "express": "^5.2.1"
+  }
 }
