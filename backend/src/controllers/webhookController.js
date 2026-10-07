@@ -7,9 +7,19 @@ const verificarWebhook = (req, res) => {
     const token = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
 
+    console.log("=== VERIFICACION WEBHOOK ===");
+    console.log("mode:", mode);
+    console.log("token recibido:", token);
+    console.log("token esperado:", process.env.VERIFY_TOKEN);
+    console.log("challenge:", challenge);
+
     if (mode === "subscribe" && token === process.env.VERIFY_TOKEN) {
+        console.log("Webhook verificado correctamente");
+
         res.status(200).send(challenge);
     } else {
+        console.log("Error en la verificacion del webhook");
+
         res.sendStatus(403);
     }
 };
@@ -17,9 +27,7 @@ const verificarWebhook = (req, res) => {
 const recibirMensaje = (req, res) => {
     console.log("Datos recibidos:", req.body);
 
-    res.status(200).json({
-        mensaje: "Mensaje recibido correctamente"
-    });
+    res.status(200).send("EVENT_RECEIVED");
 };
 
 module.exports = {
