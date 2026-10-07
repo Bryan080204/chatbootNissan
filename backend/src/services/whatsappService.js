@@ -1,3 +1,7 @@
+const {
+    detectarIntencion
+} = require("./intentService");
+
 const procesarMensajeWhatsApp = (body) => {
     if (
         !body ||
@@ -31,10 +35,13 @@ const procesarMensajeWhatsApp = (body) => {
         texto = mensaje.text.body;
     }
 
+    const intencion = detectarIntencion(texto);
+
     return {
         numero,
         tipo,
-        texto
+        texto,
+        intencion
     };
 };
 

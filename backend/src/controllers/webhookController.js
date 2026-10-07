@@ -1,3 +1,7 @@
+const {
+    procesarMensajeWhatsApp
+} = require("../services/whatsappService");
+
 const verificarWebhook = (req, res) => {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -17,35 +21,15 @@ const verificarWebhook = (req, res) => {
 const recibirMensaje = (req, res) => {
     console.log("Webhook recibido");
 
-    const body = req.body;
+    const mensaje = procesarMensajeWhatsApp(req.body);
 
-    if (
-        body.object === "whatsapp_business_account" &&
-        body.entry &&
-        body.entry.length > 0
-    ) {
-        const changes = body.entry[0].changes;
-
-        if (changes && changes.length > 0) {
-            const value = changes[0].value;
-
-            if (value.messages && value.messages.length > 0) {
-                const mensaje = value.messages[0];
-
-                const numero = mensaje.from;
-                const tipo = mensaje.type;
-
-                let texto = "";
-
-                if (tipo === "text") {
-                    texto = mensaje.text.body;
-                }
-
-                console.log("Número:", numero);
-                console.log("Tipo:", tipo);
-                console.log("Mensaje:", texto);
-            }
-        }
+    if (mensaje) {
+        console.log("Número:", mensaje.numero);
+        console.log("Tipo:", mensaje.tipo);
+        console.log("Mensaje:", mensaje.texto);
+        console.log("Intención:", mensaje.intencion);
+    } else {
+        console.log("Evento ignorado");
     }
 
     res.status(200).send("EVENT_RECEIVED");
