@@ -1,0 +1,20 @@
+{
+  "name": "chatbootnissan",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bryan080204/chatbootNissan.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bryan080204/chatbootNissan/issues"
+  },
+  "homepage": "https://github.com/Bryan080204/chatbootNissan#readme"
+}
