@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Bryan080204/chatbootNissan#readme",
   "dependencies": {
+    "@google/genai": "^2.28.0",
     "dotenv": "^18.0.6",
     "express": "^5.2.1"
   }
