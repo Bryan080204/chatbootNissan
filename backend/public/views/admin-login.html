@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nissan - Login Administrador</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin-nissan.css">
+</head>
+<body class="login-body-alt">
+    <div class="login-glow login-glow--one"></div>
+    <div class="login-glow login-glow--two"></div>
+    <div class="login-wrapper-alt">
+        <div class="login-logo-block">
+            <img src="/img/nissan-logo.jpg" alt="Nissan" class="login-logo-xl">
+            <h1>Agencia Nissan Oaxaca</h1>
+            <p>Panel Administrativo</p>
+        </div>
+        <div class="login-card-alt">
+            <div class="login-card-body">
+                <div class="login-card-header-alt">
+                    <h2>Acceso de Administrador</h2>
+                    <p>Solo personal autorizado</p>
+                </div>
+                <form onsubmit="event.preventDefault(); window.location.href='/admin/dashboard';">
+                    <div class="form-field">
+                        <label class="form-label-alt" for="usuario"><i class="fa-solid fa-user"></i> Usuario</label>
+                        <div class="input-group">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" id="usuario" placeholder="Ingresa tu usuario" value="admin">
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label-alt" for="password"><i class="fa-solid fa-lock"></i> Contraseña</label>
+                        <div class="input-group">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="password" class="has-toggle" placeholder="Ingresa tu contraseña" value="nissan2026">
+                            <button type="button" class="input-toggle-alt" id="togglePassword" aria-label="Mostrar contraseña">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
+                </form>
+            </div>
+            <div class="login-card-footer">
+                <i class="fa-solid fa-shield-halved"></i> Credenciales visuales: admin / nissan2026
+            </div>
+        </div>
+        <div class="login-footnote">© 2026 Agencia Nissan Oaxaca - Sistema de Monitoreo Chatbot</div>
+    </div>
+
+    <script>
+        (function () {
+            var toggle = document.getElementById('togglePassword');
+            var password = document.getElementById('password');
+            if (!toggle || !password) return;
+            toggle.addEventListener('click', function () {
+                var show = password.type === 'password';
+                password.type = show ? 'text' : 'password';
+                toggle.innerHTML = show
+                    ? '<i class="fa-regular fa-eye-slash"></i>'
+                    : '<i class="fa-regular fa-eye"></i>';
+                toggle.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
+            });
+        })();
+    </script>
+</body>
+</html>
