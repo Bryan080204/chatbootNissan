@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nissan - Administradores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin-nissan.css">
+    <link rel="stylesheet" href="/css/admin-app.css">
+</head>
+<body class="app-body" data-page="usuarios">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="/img/nissan-logo.jpg" alt="Nissan" class="sidebar-logo">
+                <div class="sidebar-brand-text">
+                    <div class="sidebar-brand-name">Nissan Oaxaca</div>
+                    <div class="sidebar-brand-sub">Agencia</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="nav-link" href="/admin/dashboard"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a class="nav-link" href="/admin/chats"><i class="fa-solid fa-comments"></i> Chats</a>
+                <a class="nav-link" href="/admin/citas"><i class="fa-solid fa-calendar-check"></i> Citas</a>
+                <a class="nav-link active" href="/admin/usuarios"><i class="fa-solid fa-users-gear"></i> Administradores</a>
+                <a class="nav-link" href="/admin/config"><i class="fa-solid fa-gear"></i> Configuración</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar">ADM</div>
+                    <div class="user-meta">
+                        <div class="user-name">Administrador</div>
+                        <div class="user-role">Administración</div>
+                    </div>
+                </div>
+                <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a>
+            </div>
+        </aside>
+        <div class="app-main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div>
+                        <div class="topbar-title">Administradores</div>
+                        <div class="topbar-subtitle">Gestión de cuentas administrativas</div>
+                    </div>
+                </div>
+            </header>
+            <main class="main-content">
+                <div class="page-head">
+                    <div class="page-head-left">
+                        <h1>Equipo administrativo</h1>
+                        <p>Agrega, activa o elimina cuentas con acceso al panel.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-2-1">
+                    <div class="ui-card">
+                        <div class="ui-card-head">
+                            <h3><i class="fa-solid fa-user-plus"></i> Agregar nuevo administrador</h3>
+                            <span class="ui-card-sub"><i class="fa-solid fa-shield-halved" style="color:var(--nissan-rojo);"></i> Acceso privilegiado</span>
+                        </div>
+                        <div class="ui-card-body">
+                            <form id="formAdmin">
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label class="form-label-alt"><i class="fa-solid fa-user"></i> Nombre completo</label>
+                                        <div class="input-group"><i class="fa-solid fa-user"></i><input type="text" name="nombre" placeholder="Nombre y apellidos"></div>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label-alt"><i class="fa-solid fa-at"></i> Usuario</label>
+                                        <div class="input-group"><i class="fa-solid fa-at"></i><input type="text" name="usuario" placeholder="Nombre de usuario"></div>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label-alt"><i class="fa-solid fa-envelope"></i> Correo electrónico</label>
+                                        <div class="input-group"><i class="fa-solid fa-envelope"></i><input type="email" name="correo" placeholder="correo@nissan.com"></div>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label-alt"><i class="fa-solid fa-lock"></i> Contraseña</label>
+                                        <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" name="password" minlength="8" placeholder="Mínimo 8 caracteres"></div>
+                                    </div>
+                                    <div class="form-field full">
+                                        <label class="form-label-alt"><i class="fa-solid fa-id-badge"></i> Rol</label>
+                                        <div class="input-group"><i class="fa-solid fa-id-badge"></i><input type="text" value="Administrador" readonly></div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+                                    <button type="submit" class="btn btn-red"><i class="fa-solid fa-user-plus"></i> Agregar administrador</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="ui-card">
+                        <div class="ui-card-head">
+                            <h3><i class="fa-solid fa-circle-info"></i> Resumen</h3>
+                        </div>
+                        <div class="ui-card-body">
+                            <div class="detail-row"><span class="detail-label">Total de cuentas</span><span class="detail-value" id="adminsCount">0</span></div>
+                            <div class="detail-row" style="margin-top:12px;"><span class="detail-label">Rol asignado</span><span class="pill activo">Administrador</span></div>
+                            <div class="activity-detalle" style="margin-top:16px;">
+                                Las cuentas con acceso total pueden gestionar citas, conversaciones y configuración del sistema.
+                                Los cambios se guardan automáticamente.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui-card">
+                    <div class="table-toolbar">
+                        <div class="search-field">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="adminsSearch" placeholder="Buscar administrador...">
+                        </div>
+                        <span class="ui-card-sub">Lista de administradores registrados</span>
+                    </div>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="adminsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>
