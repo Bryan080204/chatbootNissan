@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nissan - Citas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin-nissan.css">
+</head>
+<body class="app-body">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="/img/nissan-logo.jpg" alt="Nissan" class="sidebar-logo">
+                <div class="sidebar-brand-text">
+                    <div class="sidebar-brand-name">Nissan Oaxaca</div>
+                    <div class="sidebar-brand-sub">Agencia</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="nav-link" href="/admin/dashboard"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a class="nav-link" href="/admin/chats"><i class="fa-solid fa-comments"></i> Chats</a>
+                <a class="nav-link active" href="/admin/citas"><i class="fa-solid fa-calendar-check"></i> Citas</a>
+                <a class="nav-link" href="/admin/usuarios"><i class="fa-solid fa-users-gear"></i> Administradores</a>
+                <a class="nav-link" href="/admin/config"><i class="fa-solid fa-gear"></i> Configuración</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar">ADM</div>
+                    <div class="user-meta">
+                        <div class="user-name">Administrador</div>
+                        <div class="user-role">Administración</div>
+                    </div>
+                </div>
+                <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a>
+            </div>
+        </aside>
+        <div class="app-main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div>
+                        <div class="topbar-title">Citas Agendadas</div>
+                        <div class="topbar-subtitle">Control de citas pendientes, confirmadas y canceladas</div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="topbar-pill"><i class="fa-solid fa-clock"></i> 8 Pendientes</div>
+                    <div class="topbar-pill"><i class="fa-solid fa-circle-check"></i> 12 Confirmadas</div>
+                    <div class="topbar-pill"><i class="fa-solid fa-ban"></i> 3 Canceladas</div>
+                </div>
+            </header>
+            <main class="main-content">
+                <div class="conversation-panel">
+                    <div class="conversation-header">
+                        <div class="conversation-user">
+                            <div class="chat-avatar"><i class="fa-solid fa-calendar-days"></i></div>
+                            <div class="conversation-meta">
+                                <h3>Listado de Citas</h3>
+                                <div class="conversation-status" style="color: var(--gris-texto);">23 Registros</div>
+                            </div>
+                        </div>
+                        <div class="chat-filters">
+                            <button type="button" class="filter-chip active">Todos</button>
+                            <button type="button" class="filter-chip">Pendientes</button>
+                            <button type="button" class="filter-chip">Confirmadas</button>
+                            <button type="button" class="filter-chip">Canceladas</button>
+                            <button type="button" class="filter-chip">Agendadas</button>
+                        </div>
+                    </div>
+                    <div class="messages-area" style="padding: 0; flex: 1;">
+                        <table class="table-mini" style="width: 100%; padding: 0 24px;">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Teléfono</th>
+                                    <th>Servicio</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#C-001</td>
+                                    <td>Juan Ramírez</td>
+                                    <td>951 234 5678</td>
+                                    <td>Mantenimiento General</td>
+                                    <td>12 Oct 2026</td>
+                                    <td>09:00 AM</td>
+                                    <td><span class="status-pill pending"><i class="fa-solid fa-clock"></i> Pendiente</span></td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-circle-check"></i></button>
+                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-ban"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#C-002</td>
+                                    <td>María Reyes</td>
+                                    <td>951 456 7890</td>
+                                    <td>Cotización Refacción</td>
+                                    <td>12 Oct 2026</td>
+                                    <td>11:00 AM</td>
+                                    <td><span class="status-pill confirmed"><i class="fa-solid fa-circle-check"></i> Confirmada</span></td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-pen"></i></button>
+                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-ban"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#C-003</td>
+                                    <td>Carlos López</td>
+                                    <td>951 678 9012</td>
+                                    <td>Revisión de Frenos</td>
+                                    <td>11 Oct 2026</td>
+                                    <td>03:00 PM</td>
+                                    <td><span class="status-pill cancelled"><i class="fa-solid fa-ban"></i> Cancelada</span></td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-rotate-left"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
