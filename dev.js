@@ -38,6 +38,11 @@ frontend.use("/api", (req, res) => {
     enviarAlBackend(req, res);
 });
 
+// Panel administrativo (vistas EJS servidas por el backend).
+frontend.use("/admin", (req, res) => {
+    enviarAlBackend(req, res);
+});
+
 // Archivos estáticos: CSS, JavaScript, imágenes, etc.
 frontend.use(express.static(publicPath));
 
