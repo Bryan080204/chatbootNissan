@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nissan - Panel Administrativo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin-nissan.css">
+    <link rel="stylesheet" href="/css/admin-app.css">
+</head>
+<body class="app-body" data-page="dashboard">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="/img/nissan-logo.jpg" alt="Nissan" class="sidebar-logo">
+                <div class="sidebar-brand-text">
+                    <div class="sidebar-brand-name">Nissan Oaxaca</div>
+                    <div class="sidebar-brand-sub">Agencia</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="nav-link active" href="/admin/dashboard"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a class="nav-link" href="/admin/chats"><i class="fa-solid fa-comments"></i> Chats</a>
+                <a class="nav-link" href="/admin/citas"><i class="fa-solid fa-calendar-check"></i> Citas</a>
+                <a class="nav-link" href="/admin/usuarios"><i class="fa-solid fa-users-gear"></i> Administradores</a>
+                <a class="nav-link" href="/admin/config"><i class="fa-solid fa-gear"></i> Configuración</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar">ADM</div>
+                    <div class="user-meta">
+                        <div class="user-name">Administrador</div>
+                        <div class="user-role">Administración</div>
+                    </div>
+                </div>
+                <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a>
+            </div>
+        </aside>
+        <div class="app-main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div>
+                        <div class="topbar-title">Centro de Monitoreo - Chatbot Nissan</div>
+                        <div class="topbar-subtitle">Visualización de chats, citas y actividad del sistema</div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="topbar-pill"><i class="fa-solid fa-circle" style="color:var(--verde);"></i> Sistema Activo</div>
+                    <div class="topbar-pill"><i class="fa-solid fa-clock"></i> <span id="liveClock">—</span></div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="page-head">
+                    <div class="page-head-left">
+                        <h1>Resumen general</h1>
+                        <p>Indicadores de movimiento del chatbot y de la agenda del taller.</p>
+                    </div>
+                    <div class="page-actions">
+                        <a href="/admin/chats" class="btn btn-light"><i class="fa-solid fa-comments"></i> Ir a Chats</a>
+                        <a href="/admin/citas" class="btn btn-red"><i class="fa-solid fa-calendar-plus"></i> Nueva cita</a>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card red">
+                        <div class="stat-icon"><i class="fa-solid fa-comment-dots"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" id="statMensajes">0</div>
+                            <div class="stat-label">Mensajes hoy</div>
+                            <div class="stat-trend up"><i class="fa-solid fa-arrow-trend-up"></i> Actividad en tiempo real</div>
+                        </div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" id="statCitas">0</div>
+                            <div class="stat-label">Citas totales</div>
+                            <div class="stat-trend up"><i class="fa-solid fa-circle-check"></i> <span id="statConfirmadas">0</span> confirmadas</div>
+                        </div>
+                    </div>
+                    <div class="stat-card amber">
+                        <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" id="statPendientes">0</div>
+                            <div class="stat-label">Citas pendientes</div>
+                            <div class="stat-trend flat"><i class="fa-solid fa-hourglass-half"></i> Requieren seguimiento</div>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" id="statClientes">0</div>
+                            <div class="stat-label">Conversaciones activas</div>
+                            <div class="stat-trend up"><i class="fa-solid fa-user-check"></i> Clientes atendidos</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2-1">
+                    <div class="ui-card">
+                        <div class="ui-card-head">
+                            <h3><i class="fa-solid fa-chart-line"></i> Mensajes por día</h3>
+                            <span class="ui-card-sub">Últimos 14 días</span>
+                        </div>
+                        <div class="ui-card-body">
+                            <div class="chart-box"><canvas id="chartMensajes"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="ui-card">
+                        <div class="ui-card-head">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Citas por estado</h3>
+                        </div>
+                        <div class="ui-card-body">
+                            <div class="chart-box"><canvas id="chartCitas"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2-1">
+                    <div class="ui-card">
+                        <div class="ui-card-head">
+                            <h3><i class="fa-solid fa-fire"></i> Días con más movimiento</h3>
+                            <span class="ui-card-sub">Ranking por mensajes</span>
+                        </div>
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th>#</th><th>Fecha</th><th>Mensajes</th><th>Citas</th></tr>
+                                </thead>
+                                <tbody id="topDaysBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="ui-card">
+                        <div class="ui-card-head">
+                            <h3><i class="fa-solid fa-wave-square"></i> Actividad reciente</h3>
+                        </div>
+                        <div class="ui-card-body tight">
+                            <div class="activity-list" id="activityList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui-card">
+                    <div class="ui-card-head">
+                        <h3><i class="fa-solid fa-calendar-day"></i> Próximas citas</h3>
+                        <a href="/admin/citas" class="btn btn-ghost btn-sm">Ver todas <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Folio</th><th>Cliente</th><th>Fecha / Hora</th><th>Estado</th></tr>
+                            </thead>
+                            <tbody id="upcomingBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="/js/admin.js"></script>
+</body>
+</html>

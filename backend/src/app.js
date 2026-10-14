@@ -64,9 +64,41 @@ app.get("/dashboard.html", (req, res) => {
 // Archivos públicos.
 app.use(express.static(publicPath));
 
-// Redirige la raíz al login del panel.
+// Vistas HTML (EJS) para las interfaces del proyecto.
+app.set("views", path.join(publicPath, "views"));
+app.engine("html", require("ejs").renderFile);
+app.set("view engine", "html");
+
 app.get("/", (req, res) => {
-    res.redirect("/login.html");
+    res.render("index", { layout: false });
+});
+
+app.get("/login", (req, res) => {
+    res.render("login", { layout: false });
+});
+
+app.get("/admin/login", (req, res) => {
+    res.render("admin-login", { layout: false });
+});
+
+app.get("/admin/dashboard", (req, res) => {
+    res.render("admin-dashboard", { layout: false });
+});
+
+app.get("/admin/chats", (req, res) => {
+    res.render("admin-chats", { layout: false });
+});
+
+app.get("/admin/citas", (req, res) => {
+    res.render("admin-citas", { layout: false });
+});
+
+app.get("/admin/config", (req, res) => {
+    res.render("admin-config", { layout: false });
+});
+
+app.get("/admin/usuarios", (req, res) => {
+    res.render("admin-usuarios", { layout: false });
 });
 
 // Rutas existentes y nuevos módulos.
