@@ -7,6 +7,10 @@ const {
     enviarMensajeWhatsApp
 } = require("../services/whatsappApiService");
 
+const {
+    guardarIntercambio
+} = require("../services/persistenceService");
+
 const MENSAJES_PROCESADOS = new Map();
 const RETENCION_ID = 24 * 60 * 60 * 1000;
 
@@ -59,6 +63,15 @@ const procesarEnSegundoPlano = async (body) => {
         );
 
         console.log("Respuesta enviada a WhatsApp");
+
+        // Guardado opcional en SQL Server para el panel administrativo.
+        // No altera la respuesta del chatbot.
+        await guardarIntercambio({
+            numero: mensaje.numero,
+            textoUsuario: mensaje.texto,
+            textoAsistente: mensaje.respuesta,
+            intencion: mensaje.intencion
+        });
     } catch (error) {
         console.error(
             "Error procesando mensaje en segundo plano:",

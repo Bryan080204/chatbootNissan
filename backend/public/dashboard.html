@@ -1,0 +1,3948 @@
+﻿
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Panel Nissan | Administración</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!--
+        Chart.js se carga por CDN (ligera, no requiere instalación con npm).
+        Si el CDN no está disponible, las gráficas muestran un aviso y el
+        resto del panel sigue funcionando.
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --red: #c3002f;
+            --red-dark: #a50027;
+            --red-soft: #fff0f3;
+            --dark: #191c23;
+            --dark-light: #242832;
+            --bg: #f4f5f8;
+            --white: #ffffff;
+            --text: #252a32;
+            --muted: #7b8290;
+            --border: #e7e9ef;
+            --green: #14804a;
+            --green-soft: #e8f7ee;
+            --orange: #a85b08;
+            --orange-soft: #fff4e5;
+            --blue: #2858a6;
+            --blue-soft: #edf3ff;
+            --purple: #6d3fb0;
+            --purple-soft: #f2ecfb;
+            --shadow: 0 12px 35px rgba(22, 28, 45, .07);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        body.compact tables td,
+        body.compact tables th {
+            padding-top: 7px;
+            padding-bottom: 7px;
+        }
+
+        button, input, select, textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: .6;
+        }
+
+        .layout {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 258px;
+            flex-shrink: 0;
+            padding: 25px 17px;
+            background: var(--dark);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 25px;
+            border-bottom: 1px solid #343842;
+        }
+
+        .brand-icon {
+            width: 45px;
+            height: 45px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: var(--red);
+            font-size: 22px;
+        }
+
+        .brand h2 {
+            font-size: 17px;
+            margin-bottom: 4px;
+        }
+
+        .brand p {
+            font-size: 12px;
+            color: #aeb4c0;
+        }
+
+        .menu-label {
+            margin: 24px 10px 10px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.6px;
+            color: #858d9b;
+        }
+
+        .menu {
+            display: grid;
+            gap: 6px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 13px;
+            border-radius: 10px;
+            color: #cbd0d9;
+            text-decoration: none;
+            font-size: 13px;
+            transition: .2s;
+            cursor: pointer;
+        }
+
+        .menu a i {
+            width: 19px;
+            text-align: center;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: var(--red);
+            color: white;
+        }
+
+        .menu a .menu-badge {
+            margin-left: auto;
+            font-size: 10px;
+            background: rgba(255,255,255,.16);
+            padding: 2px 7px;
+            border-radius: 20px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #343842;
+        }
+
+        .sidebar-user {
+            margin-bottom: 14px;
+            color: #cbd0d9;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .sidebar-user strong {
+            display: block;
+            color: #fff;
+        }
+
+        .sidebar-user .role {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 2px 9px;
+            border-radius: 20px;
+            background: rgba(195, 0, 47, .9);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .logout-button {
+            width: 100%;
+            padding: 12px;
+            color: #fff;
+            background: transparent;
+            border: 1px solid #4c5260;
+            border-radius: 9px;
+            transition: .2s;
+        }
+
+        .logout-button:hover {
+            background: #30343e;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .eyebrow {
+            color: var(--red);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.6px;
+            margin-bottom: 9px;
+        }
+
+        .topbar h1 {
+            font-size: clamp(23px, 3vw, 30px);
+            letter-spacing: -.8px;
+            margin-bottom: 7px;
+        }
+
+        .topbar p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 15px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(20, 30, 50, .03);
+        }
+
+        .user-avatar {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            color: var(--red);
+            background: var(--red-soft);
+            font-size: 17px;
+        }
+
+        .user-badge strong {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .user-badge small {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 22px;
+            padding: 26px 30px;
+            color: #fff;
+            border-radius: 17px;
+            background: linear-gradient(115deg, #1b1e26, #343946);
+            box-shadow: var(--shadow);
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            right: -60px;
+            top: -120px;
+            border: 35px solid rgba(255,255,255,.06);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero .eyebrow {
+            color: #ffb4c5;
+        }
+
+        .hero h2 {
+            font-size: 22px;
+            margin-bottom: 9px;
+        }
+
+        .hero p {
+            color: #d5d8df;
+            font-size: 13px;
+            line-height: 1.7;
+            max-width: 650px;
+        }
+
+        .hero-icon {
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+            font-size: 58px;
+            color: rgba(255,255,255,.85);
+            padding: 0 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 18px;
+            min-width: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(20,30,50,.025);
+        }
+
+        .stat-icon {
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            font-size: 18px;
+        }
+
+        .stat-icon.red { color: var(--red); background: var(--red-soft); }
+        .stat-icon.green { color: var(--green); background: var(--green-soft); }
+        .stat-icon.blue { color: var(--blue); background: var(--blue-soft); }
+        .stat-icon.orange { color: var(--orange); background: var(--orange-soft); }
+        .stat-icon.purple { color: var(--purple); background: var(--purple-soft); }
+
+        .stat-card small {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 24px;
+            letter-spacing: -.6px;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 26px 0 15px;
+        }
+
+        .section-heading h2 {
+            font-size: 19px;
+        }
+
+        .section-heading p {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .heading-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            padding: 11px 15px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+        .button-primary { color: white; background: var(--red); }
+        .button-primary:hover { background: var(--red-dark); }
+
+        .button-light {
+            color: var(--text);
+            background: white;
+            border-color: var(--border);
+        }
+        .button-light:hover { background: #f8f9fb; }
+
+        .button-danger {
+            color: #fff;
+            background: #b3162f;
+        }
+        .button-danger:hover { background: #8f102a; }
+
+        .button-small { padding: 8px 10px; font-size: 11px; }
+
+        .panel {
+            overflow: hidden;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel + .panel {
+            margin-top: 20px;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+            align-items: end;
+            gap: 12px;
+            padding: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filters.three {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+        }
+
+        .filters.two {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+        }
+
+        .field {
+            display: grid;
+            gap: 7px;
+        }
+
+        .field label {
+            color: #555d6a;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            min-width: 0;
+            padding: 11px 12px;
+            outline: none;
+            color: var(--text);
+            background: white;
+            border: 1px solid #dfe2e9;
+            border-radius: 8px;
+            font-size: 12px;
+            transition: .2s;
+        }
+
+        .field textarea {
+            resize: vertical;
+            min-height: 74px;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(195,0,47,.08);
+        }
+
+        .field.full { grid-column: 1 / -1; }
+
+        .table-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 18px;
+            flex-wrap: wrap;
+        }
+
+        .table-top strong { font-size: 12px; }
+        .table-top span { color: var(--muted); font-size: 11px; }
+
+        .table-wrap {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        thead { background: #f8f9fb; }
+
+        th {
+            padding: 12px 16px;
+            color: #707887;
+            text-align: left;
+            font-size: 10px;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 14px 16px;
+            font-size: 12px;
+            border-bottom: 1px solid #eff0f4;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover { background: #fcfcfd; }
+        tbody tr:last-child td { border-bottom: 0; }
+
+        .cell-strong { font-weight: 700; }
+        .cell-muted { color: var(--muted); font-size: 11px; }
+        .cell-wrap { white-space: normal; max-width: 340px; }
+
+        .vehicle-name {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .vehicle-icon {
+            display: grid;
+            place-items: center;
+            width: 39px;
+            height: 39px;
+            flex-shrink: 0;
+            border-radius: 11px;
+            color: var(--red);
+            background: var(--red-soft);
+            font-size: 16px;
+        }
+
+        .vehicle-name strong { display: block; font-size: 12px; margin-bottom: 4px; }
+        .vehicle-name small { color: var(--muted); font-size: 10px; }
+
+        .price { font-weight: 800; }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .pill.green { color: var(--green); background: var(--green-soft); }
+        .pill.orange { color: var(--orange); background: var(--orange-soft); }
+        .pill.blue { color: var(--blue); background: var(--blue-soft); }
+        .pill.red { color: #ad1c32; background: #fff0f0; }
+        .pill.gray { color: #656c78; background: #f0f1f4; }
+        .pill.purple { color: var(--purple); background: var(--purple-soft); }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-button {
+            display: grid;
+            place-items: center;
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #626a78;
+            background: white;
+            transition: .2s;
+        }
+
+        .icon-button:hover {
+            color: var(--red);
+            border-color: #f0bdca;
+            background: var(--red-soft);
+        }
+
+        .icon-button.toggle-off:hover {
+            color: var(--green);
+            border-color: #b5e6c8;
+            background: var(--green-soft);
+        }
+
+        .loading-row,
+        .empty-state {
+            padding: 40px 20px;
+            color: var(--muted);
+            text-align: center;
+            white-space: normal;
+        }
+
+        .loading-row i { margin-right: 8px; }
+
+        .empty-state i {
+            display: block;
+            margin-bottom: 13px;
+            font-size: 35px;
+            color: #c5cad3;
+        }
+
+        .empty-state strong { display: block; margin-bottom: 7px; color: var(--text); }
+        .empty-state p { font-size: 12px; line-height: 1.6; }
+
+        .notice {
+            display: none;
+            margin-bottom: 17px;
+            padding: 13px 15px;
+            border: 1px solid;
+            border-radius: 10px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .notice.error {
+            display: block;
+            color: #8b0021;
+            background: var(--red-soft);
+            border-color: #f2bdc9;
+        }
+
+        .notice.success {
+            display: block;
+            color: #11663b;
+            background: var(--green-soft);
+            border-color: #b8e7c9;
+        }
+
+        .notice.info {
+            display: block;
+            color: #1f3f7a;
+            background: var(--blue-soft);
+            border-color: #bcd0f2;
+        }
+
+        .notice i { margin-right: 8px; }
+
+        .footer {
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 11px;
+            text-align: center;
+        }
+
+        /* Secciones */
+        .seccion { display: none; animation: fade .25s ease both; }
+        .seccion.active { display: block; }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Gráficas */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 18px;
+            min-width: 0;
+        }
+
+        .chart-card h3 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .chart-card .chart-hint {
+            color: var(--muted);
+            font-size: 11px;
+            margin-bottom: 14px;
+        }
+
+        .chart-box {
+            position: relative;
+            height: 240px;
+        }
+
+        .chart-vacio {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            padding: 20px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .tab {
+            padding: 9px 15px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #5b6270;
+        }
+
+        .tab.active {
+            color: #fff;
+            background: var(--red);
+            border-color: var(--red);
+        }
+
+        /* Paginación */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--muted);
+            flex-wrap: wrap;
+        }
+
+        .pagination .buttons { display: flex; gap: 8px; }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 18, 26, .62);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-card {
+            width: min(100%, 660px);
+            max-height: 92vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 17px;
+            box-shadow: 0 25px 90px rgba(0,0,0,.25);
+        }
+
+        .modal-card.modal-small { width: min(100%, 430px); }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 { font-size: 19px; margin-bottom: 6px; }
+        .modal-header p { color: var(--muted); font-size: 12px; }
+
+        .close-modal {
+            display: grid;
+            place-items: center;
+            width: 35px;
+            height: 35px;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: white;
+            color: #616977;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            padding: 22px 24px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 16px 24px;
+            background: #fafbfc;
+            border-top: 1px solid var(--border);
+            position: sticky;
+            bottom: 0;
+        }
+
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 12px;
+            color: #555d6a;
+        }
+
+        .checkbox-field input { width: auto; }
+
+        /* Chat (historial de conversación) */
+        .chat-wrap {
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f7f8fa;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .chat-bubble {
+            max-width: 78%;
+            padding: 11px 14px;
+            border-radius: 13px;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .chat-bubble small {
+            display: block;
+            margin-top: 6px;
+            font-size: 10px;
+            opacity: .7;
+        }
+
+        .chat-bubble.usuario {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 3px;
+        }
+
+        .chat-bubble.asistente {
+            align-self: flex-end;
+            background: var(--red);
+            color: white;
+            border-bottom-right-radius: 3px;
+        }
+
+        .chat-meta {
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .chat-meta strong { color: var(--text); }
+
+        /* Configuración */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .info-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding-bottom: 11px;
+            border-bottom: 1px dashed var(--border);
+            font-size: 12px;
+        }
+
+        .info-row:last-child { border-bottom: 0; padding-bottom: 0; }
+        .info-row span { color: var(--muted); }
+        .info-row strong { text-align: right; overflow-wrap: anywhere; }
+
+        .pref-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 13px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 12px;
+        }
+
+        .pref-row:last-child { border-bottom: 0; }
+        .pref-row p { color: var(--muted); font-size: 11px; margin-top: 3px; }
+
+        .switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            background: #cbd0d9;
+            border-radius: 24px;
+            transition: .2s;
+            cursor: pointer;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: .2s;
+        }
+
+        .switch input:checked + .slider { background: var(--red); }
+        .switch input:checked + .slider::before { transform: translateX(20px); }
+
+        .form-note {
+            padding: 13px 15px;
+            border-radius: 10px;
+            background: var(--blue-soft);
+            color: #1f3f7a;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .password-card { padding: 22px 24px; }
+
+        .card-pad { padding: 20px 22px; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 2000;
+            max-width: min(390px, calc(100vw - 35px));
+            padding: 14px 18px;
+            color: white;
+            background: #20242c;
+            border-radius: 11px;
+            box-shadow: 0 12px 35px rgba(0,0,0,.2);
+            font-size: 12px;
+            line-height: 1.5;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: .25s;
+        }
+
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { background: #8b0021; }
+        .toast.success { background: #11663b; }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0,0,0,.15);
+            border-top-color: var(--red);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 1180px) {
+            .filters,
+            .filters.three {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .charts-grid { grid-template-columns: 1fr; }
+            .config-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 1100px) {
+            .sidebar { width: 220px; }
+            .main { padding: 23px; }
+            .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 820px) {
+            .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 700px) {
+            .layout { display: block; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 17px;
+            }
+            .brand { padding-bottom: 17px; }
+            .menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .sidebar-footer { margin-top: 18px; }
+            .main { padding: 20px 13px; }
+            .hero { padding: 22px 20px; }
+            .hero-icon { display: none; }
+            .stat-card { padding: 14px; gap: 10px; }
+            .stat-icon { width: 38px; height: 38px; font-size: 15px; }
+            .stat-card strong { font-size: 20px; }
+            .filters,
+            .filters.three,
+            .filters.two { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; padding: 18px; }
+            .field.full { grid-column: auto; }
+            .modal-header, .modal-footer { padding: 17px; }
+            .user-badge { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-car-side"></i>
+            </div>
+            <div>
+                <h2>Nissan Chatbot</h2>
+                <p>Panel administrativo</p>
+            </div>
+        </div>
+
+        <p class="menu-label">MENÚ PRINCIPAL</p>
+        <nav class="menu" id="menuPrincipal">
+            <a data-section="inicio" class="active"><i class="fa-solid fa-house"></i> Resumen general</a>
+            <a data-section="clientes"><i class="fa-solid fa-users"></i> Clientes</a>
+            <a data-section="conversaciones"><i class="fa-solid fa-comments"></i> Conversaciones</a>
+            <a data-section="citas"><i class="fa-solid fa-calendar-check"></i> Citas</a>
+            <a data-section="inventario"><i class="fa-solid fa-car"></i> Inventario</a>
+            <a data-section="historial"><i class="fa-solid fa-clock-rotate-left"></i> Historial</a>
+        </nav>
+
+        <p class="menu-label">ADMINISTRACIÓN</p>
+        <nav class="menu" id="menuAdmin">
+            <a data-section="usuarios" data-admin><i class="fa-solid fa-user-shield"></i> Administradores</a>
+            <a data-section="seguridad" data-admin><i class="fa-solid fa-shield-halved"></i> Seguridad y accesos</a>
+            <a data-section="password"><i class="fa-solid fa-key"></i> Mi contraseña</a>
+            <a data-section="configuracion"><i class="fa-solid fa-gear"></i> Configuración</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div id="sidebarUser" class="sidebar-user">
+                Verificando sesión...
+            </div>
+            <button id="logoutButton" class="logout-button" type="button">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Cerrar sesión
+            </button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <div class="eyebrow" id="topEyebrow">CENTRO DE CONTROL NISSAN</div>
+                <h1 id="welcomeTitle">Panel de administración</h1>
+                <p id="topSubtitle">Administra tus vehículos y consulta el inventario registrado.</p>
+            </div>
+
+            <div class="user-badge">
+                <div class="user-avatar">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div>
+                    <strong id="userName">Verificando usuario...</strong>
+                    <small id="userRole">Validando acceso</small>
+                </div>
+            </div>
+        </header>
+
+        <div id="notice" class="notice" role="alert"></div>
+
+        <!-- ===================== INICIO ===================== -->
+        <section id="seccion-inicio" class="seccion active">
+            <div class="hero">
+                <div class="hero-content">
+                    <div class="eyebrow">CENTRO DE CONTROL</div>
+                    <h2>Todo el estado del chatbot en un solo lugar.</h2>
+                    <p>
+                        Revisa clientes, conversaciones, citas, inventario y
+                        seguridad con datos reales consultados en SQL Server.
+                    </p>
+                </div>
+                <div class="hero-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+            </div>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Resumen general</h2>
+                    <p>Indicadores calculados en tiempo real desde la base de datos.</p>
+                </div>
+                <button id="refreshDashboard" class="button button-light" type="button">
+                    <i class="fa-solid fa-rotate"></i> Actualizar
+                </button>
+            </div>
+
+            <div id="dashStats" class="stats"></div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Mensajes por día</h3>
+                    <p class="chart-hint">Últimos 7 días.</p>
+                    <div class="chart-box">
+                        <canvas id="chartMensajesDia"></canvas>
+                        <div class="chart-vacio" id="vacioMensajesDia"><span>Sin datos todavía</span></div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Conversaciones por día</h3>
+                    <p class="chart-hint">Últimos 7 días.</p>
+                    <div class="chart-box">
+                        <canvas id="chartConversacionesDia"></canvas>
+                        <div class="chart-vacio" id="vacioConversacionesDia"><span>Sin datos todavía</span></div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Mensajes por hora</h3>
+                    <p class="chart-hint">Distribución en el día (0 a 23 h).</p>
+                    <div class="chart-box">
+                        <canvas id="chartMensajesHora"></canvas>
+                        <div class="chart-vacio" id="vacioMensajesHora"><span>Sin datos todavía</span></div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Citas por estado</h3>
+                    <p class="chart-hint">Requiere el módulo de citas.</p>
+                    <div class="chart-box">
+                        <canvas id="chartCitasEstado"></canvas>
+                        <div class="chart-vacio" id="vacioCitasEstado"><span>Sin citas registradas</span></div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Inventario por modelo</h3>
+                    <p class="chart-hint">Vehículos activos por modelo.</p>
+                    <div class="chart-box">
+                        <canvas id="chartInventarioModelo"></canvas>
+                        <div class="chart-vacio" id="vacioInventarioModelo"><span>Sin vehículos registrados</span></div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Disponibilidad del inventario</h3>
+                    <p class="chart-hint">Vehículos activos por estado.</p>
+                    <div class="chart-box">
+                        <canvas id="chartDisponibilidad"></canvas>
+                        <div class="chart-vacio" id="vacioDisponibilidad"><span>Sin vehículos registrados</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="table-top">
+                    <strong>Actividad reciente</strong>
+                    <span>Últimos movimientos del sistema</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Detalle</th>
+                            <th>Fecha</th>
+                        </tr>
+                        </thead>
+                        <tbody id="actividadBody">
+                        <tr><td colspan="4" class="loading-row">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Cargando actividad...
+                        </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== CLIENTES ===================== -->
+        <section id="seccion-clientes" class="seccion">
+            <div class="section-heading">
+                <div>
+                    <h2>Clientes</h2>
+                    <p>Clientes derivados de las conversaciones registradas y sus datos de contacto.</p>
+                </div>
+                <button class="button button-light" data-refresh="clientes" type="button">
+                    <i class="fa-solid fa-rotate"></i> Actualizar
+                </button>
+            </div>
+
+            <div class="panel">
+                <div class="filters two">
+                    <div class="field">
+                        <label for="clientesBuscar">Buscar cliente</label>
+                        <input id="clientesBuscar" type="search" maxlength="150"
+                               placeholder="Nombre, teléfono o correo...">
+                    </div>
+                    <div class="field">
+                        <label>&nbsp;</label>
+                        <button id="clientesBuscarBtn" class="button button-primary" type="button">
+                            <i class="fa-solid fa-magnifying-glass"></i> Buscar
+                        </button>
+                    </div>
+                    <button id="clientesLimpiar" class="button button-light" type="button">
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar
+                    </button>
+                </div>
+                <div class="table-top">
+                    <strong>Clientes registrados</strong>
+                    <span id="clientesCount">Preparando consulta...</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th>Conversaciones</th>
+                            <th>Mensajes</th>
+                            <th>Registro</th>
+                            <th>Última actividad</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="clientesBody">
+                        <tr><td colspan="8" class="loading-row">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Consultando clientes...
+                        </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== CONVERSACIONES ===================== -->
+        <section id="seccion-conversaciones" class="seccion">
+            <div class="section-heading">
+                <div>
+                    <h2>Conversaciones</h2>
+                    <p>Historial del chatbot. Selecciona una conversación para ver sus mensajes.</p>
+                </div>
+                <button class="button button-light" data-refresh="conversaciones" type="button">
+                    <i class="fa-solid fa-rotate"></i> Actualizar
+                </button>
+            </div>
+
+            <div class="panel">
+                <div class="filters three">
+                    <div class="field">
+                        <label for="convBuscar">Buscar</label>
+                        <input id="convBuscar" type="search" maxlength="150"
+                               placeholder="Nombre, teléfono o correo...">
+                    </div>
+                    <div class="field">
+                        <label for="convEstado">Estado</label>
+                        <select id="convEstado"><option value="">Todos los estados</option></select>
+                    </div>
+                    <div class="field">
+                        <label for="convCanal">Canal</label>
+                        <select id="convCanal"><option value="">Todos los canales</option></select>
+                    </div>
+                    <button id="convLimpiar" class="button button-light" type="button">
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar
+                    </button>
+                </div>
+                <div class="table-top">
+                    <strong>Conversaciones registradas</strong>
+                    <span id="convCount">Preparando consulta...</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Contacto</th>
+                            <th>Canal</th>
+                            <th>Estado</th>
+                            <th>Mensajes</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="convBody">
+                        <tr><td colspan="8" class="loading-row">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Consultando conversaciones...
+                        </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <span id="convPaginaInfo">Página 1</span>
+                    <div class="buttons">
+                        <button id="convPrev" class="button button-light button-small" type="button">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </button>
+                        <button id="convNext" class="button button-light button-small" type="button">
+                            Siguiente <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== CITAS ===================== -->
+        <section id="seccion-citas" class="seccion">
+            <div class="section-heading">
+                <div>
+                    <h2>Citas</h2>
+                    <p>Agenda y seguimiento de citas de clientes.</p>
+                </div>
+                <div class="heading-actions">
+                    <button class="button button-light" data-refresh="citas" type="button">
+                        <i class="fa-solid fa-rotate"></i> Actualizar
+                    </button>
+                    <button id="addCitaButton" class="button button-primary" type="button">
+                        <i class="fa-solid fa-plus"></i> Agregar cita
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="filters">
+                    <div class="field">
+                        <label for="citasBuscar">Buscar</label>
+                        <input id="citasBuscar" type="search" maxlength="150"
+                               placeholder="Cliente, teléfono, correo o servicio...">
+                    </div>
+                    <div class="field">
+                        <label for="citasEstado">Estado</label>
+                        <select id="citasEstado"><option value="">Todos los estados</option></select>
+                    </div>
+                    <div class="field">
+                        <label for="citasDesde">Desde</label>
+                        <input id="citasDesde" type="date">
+                    </div>
+                    <div class="field">
+                        <label for="citasHasta">Hasta</label>
+                        <input id="citasHasta" type="date">
+                    </div>
+                    <button id="citasLimpiar" class="button button-light" type="button">
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar
+                    </button>
+                </div>
+                <div class="table-top">
+                    <strong>Citas registradas</strong>
+                    <span id="citasCount">Preparando consulta...</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Contacto</th>
+                            <th>Servicio</th>
+                            <th>Fecha y hora</th>
+                            <th>Modelo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="citasBody">
+                        <tr><td colspan="7" class="loading-row">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Consultando citas...
+                        </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== INVENTARIO ===================== -->
+        <section id="seccion-inventario" class="seccion">
+            <div class="section-heading">
+                <div>
+                    <h2>Inventario de vehículos</h2>
+                    <p>Los datos se consultan directamente desde SQL Server.</p>
+                </div>
+                <div class="heading-actions">
+                    <button class="button button-light" data-refresh="inventario" type="button">
+                        <i class="fa-solid fa-rotate"></i> Actualizar
+                    </button>
+                    <button id="addVehicleButton" class="button button-primary" type="button">
+                        <i class="fa-solid fa-plus"></i> Agregar vehículo
+                    </button>
+                </div>
+            </div>
+
+            <section class="stats">
+                <article class="stat-card">
+                    <div class="stat-icon red"><i class="fa-solid fa-car"></i></div>
+                    <div><small>Vehículos encontrados</small><strong id="statVehicles">—</strong></div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                    <div><small>Disponibles</small><strong id="statAvailable">—</strong></div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon blue"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <div><small>Unidades en existencia</small><strong id="statStock">—</strong></div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon orange"><i class="fa-solid fa-ban"></i></div>
+                    <div><small>Vehículos inactivos</small><strong id="statInactive">—</strong></div>
+                </article>
+            </section>
+
+            <div class="panel">
+                <div class="filters three">
+                    <div class="field">
+                        <label for="searchInput">Buscar vehículo</label>
+                        <input id="searchInput" type="search" maxlength="150"
+                               placeholder="Modelo, versión, color o año...">
+                    </div>
+                    <div class="field">
+                        <label for="statusFilter">Estado</label>
+                        <select id="statusFilter">
+                            <option value="">Todos los estados</option>
+                            <option value="Disponible">Disponible</option>
+                            <option value="Apartado">Apartado</option>
+                            <option value="Vendido">Vendido</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="activeFilter">Registro</label>
+                        <select id="activeFilter">
+                            <option value="1">Activos</option>
+                            <option value="">Todos</option>
+                            <option value="0">Inactivos</option>
+                        </select>
+                    </div>
+                    <button id="clearFiltersButton" class="button button-light" type="button">
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar
+                    </button>
+                </div>
+
+                <div class="table-top">
+                    <strong>Vehículos registrados</strong>
+                    <span id="resultCount">Preparando consulta...</span>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Vehículo</th>
+                            <th>Año</th>
+                            <th>Color</th>
+                            <th>Precio</th>
+                            <th>Existencia</th>
+                            <th>Estado</th>
+                            <th>Registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="vehicleTableBody">
+                        <tr><td colspan="8" class="loading-row">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Consultando inventario...
+                        </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== HISTORIAL ===================== -->
+        <section id="seccion-historial" class="seccion">
+            <div class="section-heading">
+                <div>
+                    <h2>Historial</h2>
+                    <p>Consulta mensajes, citas, accesos y auditoría. Sin mezclar conceptos.</p>
+                </div>
+                <button class="button button-light" data-refresh="historial" type="button">
+                    <i class="fa-solid fa-rotate"></i> Actualizar
+                </button>
+            </div>
+
+            <div class="tabs" id="historialTabs">
+                <button class="tab active" data-tipo="mensajes">Mensajes</button>
+                <button class="tab" data-tipo="citas">Citas</button>
+                <button class="tab" data-tipo="accesos" data-admin>Sesiones</button>
+                <button class="tab" data-tipo="auditoria" data-admin>Auditoría</button>
+            </div>
+
+            <div class="panel">
+                <div class="filters three">
+                    <div class="field">
+                        <label for="histBuscar">Buscar</label>
+                        <input id="histBuscar" type="search" maxlength="150"
+                               placeholder="Texto a buscar...">
+                    </div>
+                    <div class="field">
+                        <label for="histDesde">Desde</label>
+                        <input id="histDesde" type="date">
+                    </div>
+                    <div class="field">
+                        <label for="histHasta">Hasta</label>
+                        <input id="histHasta" type="date">
+                    </div>
+                    <button id="histLimpiar" class="button button-light" type="button">
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar
+                    </button>
+                </div>
+                <div class="table-top">
+                    <strong id="histTitulo">Mensajes</strong>
+                    <span id="histCount">Preparando consulta...</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Emisor / Estado</th>
+                            <th>Cliente / Usuario</th>
+                            <th>Detalle</th>
+                            <th>Referencia</th>
+                        </tr>
+                        </thead>
+                        <tbody id="histBody">
+                        <tr><td colspan="6" class="loading-row">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Consultando historial...
+                        </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== USUARIOS ===================== -->
+        <section id="seccion-usuarios" class="seccion">
+            <div class="section-heading">
+                <div>
+                    <h2>Administradores y usuarios</h2>
+                    <p>Gestión de cuentas, roles y estado. Las contraseñas nunca se muestran.</p>
+                </div>
+                <div class="heading-actions">
+                    <button class="button button-light" data-refresh="usuarios" type="button">
+                        <i class="fa-solid fa-rotate"></i> Actualizar
+                    </button>
+                    <button id="addUserButton" class="button button-primary" type="button">
+                        <i class="fa-solid fa-plus"></i> Agregar usuario
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="filters three">
+                    <div class="field">
+                        <label for="usuariosBuscar">Buscar</label>
+                        <input id="usuariosBuscar" type="search" maxlength="150"
+                               placeholder="Nombre o correo...">
+                    </div>
+                    <div class="field">
+                        <label for="usuariosRol">Rol</label>
+                        <select id="usuariosRol"><option value="">Todos los roles</option></select>
+                    </div>
+                    <div class="field">
+                        <label for="usuariosActivo">Estado</label>
+                        <select id="usuariosActivo">
+                            <option value="">Todos</option>
+                            <option value="1">Activos</option>
+                            <option value="0">Inactivos</option>
+                        </select>
+                    </div>
+                    <button id="usuariosLimpiar" class="button button-light" type="button">
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar
+                    </button>
+                </div>
+                <div class="table-top">
+                    <strong>Usuarios</strong>
+                    <span id="usuariosCount">Preparando consulta...</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Último acceso</th>
+                            <th>Creado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="usuariosBody">
+                        <tr><td colspan="7" class="loading-row">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Consultando usuarios...
+                        </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== SEGURIDAD ===================== -->
+        <section id="seccion-seguridad" class="seccion">
+            <div class="section-heading">
+                <div>
+                    <h2>Seguridad y accesos</h2>
+                    <p>Historial de inicios de sesión y eventos de auditoría.</p>
+                </div>
+                <button class="button button-light" data-refresh="seguridad" type="button">
+                    <i class="fa-solid fa-rotate"></i> Actualizar
+                </button>
+            </div>
+
+            <div class="tabs" id="seguridadTabs">
+                <button class="tab active" data-vista="intentos">Intentos de acceso</button>
+                <button class="tab" data-vista="auditoria">Auditoría</button>
+            </div>
+
+            <div class="panel">
+                <div class="filters three" id="segFiltrosIntentos">
+                    <div class="field">
+                        <label for="segBuscar">Buscar</label>
+                        <input id="segBuscar" type="search" maxlength="150"
+                               placeholder="Correo, motivo, IP o usuario...">
+                    </div>
+                    <div class="field">
+                        <label for="segResultado">Resultado</label>
+                        <select id="segResultado">
+                            <option value="">Todos</option>
+                            <option value="exitoso">Exitosos</option>
+                            <option value="fallido">Fallidos</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="segDesde">Desde</label>
+                        <input id="segDesde" type="date">
+                    </div>
+                    <button id="segLimpiar" class="button button-light" type="button">
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar
+                    </button>
+                </div>
+
+                <div class="filters three" id="segFiltrosAuditoria" style="display:none">
+                    <div class="field">
+                        <label for="audBuscar">Buscar</label>
+                        <input id="audBuscar" type="search" maxlength="150"
+                               placeholder="Detalle, tabla, usuario...">
+                    </div>
+                    <div class="field">
+                        <label for="audAccion">Acción</label>
+                        <select id="audAccion"><option value="">Todas las acciones</option></select>
+                    </div>
+                    <div class="field">
+                        <label for="audDesde">Desde</label>
+                        <input id="audDesde" type="date">
+                    </div>
+                    <button id="audLimpiar" class="button button-light" type="button">
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar
+                    </button>
+                </div>
+
+                <div class="table-top">
+                    <strong id="segTitulo">Intentos de acceso</strong>
+                    <span id="segCount">Preparando consulta...</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead id="segThead">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Correo intentado</th>
+                            <th>Resultado</th>
+                            <th>Motivo</th>
+                            <th>IP</th>
+                        </tr>
+                        </thead>
+                        <tbody id="segBody">
+                        <tr><td colspan="6" class="loading-row">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Consultando...
+                        </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== MI CONTRASEÑA ===================== -->
+        <section id="seccion-password" class="seccion">
+            <div class="section-heading">
+                <div>
+                    <h2>Mi contraseña</h2>
+                    <p>Actualiza la contraseña de tu propia cuenta de forma segura.</p>
+                </div>
+            </div>
+
+            <div class="panel password-card">
+                <form id="passwordForm" class="form-grid" style="padding:0">
+                    <div class="field full">
+                        <label for="passActual">Contraseña actual *</label>
+                        <input id="passActual" type="password" autocomplete="current-password" required>
+                    </div>
+                    <div class="field">
+                        <label for="passNueva">Contraseña nueva *</label>
+                        <input id="passNueva" type="password" minlength="8" maxlength="128"
+                               autocomplete="new-password" required>
+                    </div>
+                    <div class="field">
+                        <label for="passConfirmar">Confirmar contraseña *</label>
+                        <input id="passConfirmar" type="password" minlength="8" maxlength="128"
+                               autocomplete="new-password" required>
+                    </div>
+                    <div class="field full">
+                        <div class="form-note">
+                            La contraseña debe tener al menos 8 caracteres. Se guarda
+                            con hash seguro; nunca se almacena en texto plano.
+                        </div>
+                    </div>
+                    <div class="field full" style="display:flex;justify-content:flex-end">
+                        <button id="passSubmit" class="button button-primary" type="submit">
+                            <i class="fa-solid fa-floppy-disk"></i> Actualizar contraseña
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ===================== CONFIGURACIÓN ===================== -->
+        <section id="seccion-configuracion" class="seccion">
+            <div class="section-heading">
+                <div>
+                    <h2>Configuración</h2>
+                    <p>Información del panel y preferencias de visualización.</p>
+                </div>
+            </div>
+
+            <div class="config-grid">
+                <div class="panel card-pad">
+                    <h3 style="font-size:14px;margin-bottom:14px">Información general</h3>
+                    <div class="info-list" id="configInfo">
+                        <div class="info-row"><span>Cargando...</span></div>
+                    </div>
+                </div>
+
+                <div class="panel card-pad">
+                    <h3 style="font-size:14px;margin-bottom:6px">Preferencias visuales</h3>
+                    <p style="color:var(--muted);font-size:11px;margin-bottom:10px">
+                        Se guardan en este navegador.
+                    </p>
+
+                    <div class="pref-row">
+                        <div>
+                            <strong>Tablas compactas</strong>
+                            <p>Reduce el alto de las filas de las tablas.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="prefCompact">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="pref-row">
+                        <div>
+                            <strong>Animar gráficas</strong>
+                            <p>Activa o desactiva las animaciones de las gráficas.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="prefAnimaciones" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="pref-row">
+                        <div>
+                            <strong>Auto-actualizar resumen</strong>
+                            <p>Actualiza el resumen general cada 60 segundos.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="prefAuto">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-note" style="margin-top:18px">
+                <i class="fa-solid fa-lock"></i>
+                Por seguridad, los secretos y credenciales del archivo .env no se
+                muestran ni se pueden editar desde el panel.
+            </div>
+        </section>
+
+        <footer class="footer">
+            Nissan Chatbot · Panel administrativo · Datos conectados a SQL Server
+        </footer>
+    </main>
+</div>
+
+<!-- Contenedor de modales (se generan dinámicamente) -->
+<div id="modalRoot"></div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   Utilidades
+   ============================================================ */
+
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+const state = {
+    usuario: null,
+    esAdmin: false,
+    puedeCitas: false,
+    seccion: "inicio",
+    seccionCargada: {},
+    // Inventario
+    vehiculos: [],
+    modelos: [],
+    editandoId: null,
+    guardando: false,
+    // Conversaciones
+    convPagina: 1,
+    convPorPagina: 20,
+    convTotal: 0,
+    convItems: [],
+    // Usuarios
+    usuarios: [],
+    roles: [],
+    // Seguridad
+    segVista: "intentos",
+    // Historial
+    histTipo: "mensajes",
+    // Citas
+    citas: [],
+    citasOpciones: { estados: [], servicios: [] },
+    // Gráficas
+    charts: {}
+};
+
+const modalRoot = $("#modalRoot");
+const toast = $("#toast");
+const notice = $("#notice");
+let toastTimer;
+let temporizadorBusqueda;
+
+const SECCIONES = {
+    inicio: { titulo: "Resumen general", subtitulo: "Indicadores y actividad del chatbot.", cargar: cargarDashboard },
+    clientes: { titulo: "Clientes", subtitulo: "Directorio de clientes registrados.", cargar: cargarClientes },
+    conversaciones: { titulo: "Conversaciones", subtitulo: "Historial de conversaciones del chatbot.", cargar: cargarConversaciones },
+    citas: { titulo: "Citas", subtitulo: "Agenda y seguimiento de citas.", cargar: cargarCitas },
+    inventario: { titulo: "Inventario de vehículos", subtitulo: "Consulta y administra los vehículos.", cargar: cargarInventario },
+    historial: { titulo: "Historial", subtitulo: "Consulta de eventos del sistema.", cargar: cargarHistorial },
+    usuarios: { titulo: "Administradores y usuarios", subtitulo: "Gestión de cuentas y roles.", cargar: cargarUsuarios, soloAdmin: true },
+    seguridad: { titulo: "Seguridad y accesos", subtitulo: "Accesos y auditoría del sistema.", cargar: cargarSeguridad, soloAdmin: true },
+    password: { titulo: "Mi contraseña", subtitulo: "Actualiza tus credenciales.", cargar: null },
+    configuracion: { titulo: "Configuración", subtitulo: "Información y preferencias del panel.", cargar: cargarConfiguracion }
+};
+
+function escapar(valor) {
+    return String(valor ?? "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[c]);
+}
+
+function moneda(valor) {
+    return new Intl.NumberFormat("es-MX", {
+        style: "currency", currency: "MXN", maximumFractionDigits: 2
+    }).format(Number(valor) || 0);
+}
+
+// Formatea fechas usando componentes UTC para reflejar el valor tal como
+// está guardado en SQL Server (evita desplazamientos de zona horaria).
+function fecha(valor) {
+    if (!valor) return "—";
+    const d = new Date(valor);
+    if (Number.isNaN(d.getTime())) return "—";
+    const p = (n) => String(n).padStart(2, "0");
+    return `${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}/${d.getUTCFullYear()} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
+}
+
+function soloFecha(valor) {
+    if (!valor) return "—";
+    const d = new Date(valor);
+    if (Number.isNaN(d.getTime())) return "—";
+    const p = (n) => String(n).padStart(2, "0");
+    return `${p(d.getUTCDate())}/${p(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}`;
+}
+
+// Convierte un valor de la BD a "YYYY-MM-DDTHH:mm" para <input datetime-local>.
+function aInputDatetime(valor) {
+    if (!valor) return "";
+    const d = new Date(valor);
+    if (Number.isNaN(d.getTime())) return "";
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}T${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
+}
+
+function mostrarToast(mensaje, tipo = "") {
+    toast.textContent = mensaje;
+    toast.classList.remove("error", "success");
+    if (tipo) toast.classList.add(tipo);
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 3800);
+}
+
+function mostrarAviso(mensaje, tipo = "error") {
+    notice.className = "notice " + tipo;
+    notice.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${escapar(mensaje)}`;
+    notice.style.display = "block";
+}
+
+function ocultarAviso() {
+    notice.className = "notice";
+    notice.textContent = "";
+    notice.style.display = "none";
+}
+
+async function api(url, opciones = {}) {
+    const respuesta = await fetch(url, {
+        credentials: "same-origin",
+        cache: "no-store",
+        ...opciones,
+        headers: {
+            ...(opciones.body ? { "Content-Type": "application/json" } : {}),
+            ...(opciones.headers || {})
+        }
+    });
+
+    if (respuesta.status === 401) {
+        window.location.replace("/login.html");
+        throw new Error("Tu sesión expiró.");
+    }
+
+    const datos = await respuesta.json().catch(() => ({}));
+
+    if (!respuesta.ok) {
+        throw new Error(datos.mensaje || datos.error || "Ocurrió un error en la solicitud.");
+    }
+
+    return datos;
+}
+
+/* ============================================================
+   Modales y confirmaciones
+   ============================================================ */
+
+function abrirModal(html) {
+    modalRoot.innerHTML = html;
+    document.body.style.overflow = "hidden";
+}
+
+function cerrarModal() {
+    modalRoot.innerHTML = "";
+    document.body.style.overflow = "";
+}
+
+function confirmarAccion({ titulo, mensaje, textoConfirmar = "Confirmar", peligro = false }) {
+    return new Promise((resolve) => {
+        abrirModal(`
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card modal-small">
+                    <div class="modal-header">
+                        <div>
+                            <h2>${escapar(titulo)}</h2>
+                            <p>${escapar(mensaje)}</p>
+                        </div>
+                        <button class="close-modal" type="button" data-close aria-label="Cerrar">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="button button-light" type="button" data-cancelar>Cancelar</button>
+                        <button class="button ${peligro ? "button-danger" : "button-primary"}" type="button" data-confirmar>
+                            ${escapar(textoConfirmar)}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        const finalizar = (valor) => { cerrarModal(); resolve(valor); };
+
+        modalRoot.querySelector("[data-confirmar]").addEventListener("click", () => finalizar(true));
+        modalRoot.querySelector("[data-cancelar]").addEventListener("click", () => finalizar(false));
+        modalRoot.querySelector("[data-close]").addEventListener("click", () => finalizar(false));
+    });
+}
+
+modalRoot.addEventListener("click", (e) => {
+    if (e.target.classList.contains("modal")) cerrarModal();
+    const cerrar = e.target.closest("[data-close]");
+    if (cerrar) cerrarModal();
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modalRoot.innerHTML) cerrarModal();
+});
+
+/* ============================================================
+   Sesión y navegación
+   ============================================================ */
+
+async function verificarSesion() {
+    const respuesta = await api("/api/auth/session");
+    const usuario = respuesta.usuario;
+
+    if (!respuesta.autenticado || !usuario) {
+        window.location.replace("/login.html");
+        return false;
+    }
+
+    state.usuario = usuario;
+    state.esAdmin = String(usuario.rol || "").trim().toLowerCase() === "administrador";
+    state.puedeCitas = ["administrador", "vendedor"].includes(
+        String(usuario.rol || "").trim().toLowerCase()
+    );
+
+    $("#userName").textContent = usuario.nombre;
+    $("#userRole").textContent = usuario.rol;
+    $("#sidebarUser").innerHTML =
+        `<strong>${escapar(usuario.nombre)}</strong>` +
+        `${escapar(usuario.correo)}<br><span class="role">${escapar(usuario.rol)}</span>`;
+
+    // Ocultar módulos administrativos para usuarios sin permiso.
+    $$("[data-admin]").forEach((el) => {
+        if (!state.esAdmin) el.style.display = "none";
+    });
+
+    if (!state.esAdmin) {
+        $("#addVehicleButton").hidden = true;
+    }
+
+    if (!state.puedeCitas) {
+        $("#addCitaButton").hidden = true;
+    }
+
+    if (usuario.debeCambiarPassword) {
+        mostrarAviso(
+            "Tu contraseña fue restablecida o es temporal. Te recomendamos cambiarla en Mi contraseña.",
+            "info"
+        );
+    }
+
+    return true;
+}
+
+function navegar(seccion) {
+    const config = SECCIONES[seccion] || SECCIONES.inicio;
+
+    if (config.soloAdmin && !state.esAdmin) {
+        mostrarToast("No tienes permisos para acceder a esa sección.", "error");
+        seccion = "inicio";
+    }
+
+    state.seccion = seccion;
+
+    $$(".menu a").forEach((a) => a.classList.toggle("active", a.dataset.section === seccion));
+    $$(".seccion").forEach((s) => s.classList.toggle("active", s.id === "seccion-" + seccion));
+
+    $("#welcomeTitle").textContent = seccion === "inicio"
+        ? "Bienvenido, " + state.usuario.nombre
+        : config.titulo;
+    $("#topSubtitle").textContent = config.subtitulo;
+
+    if (window.location.hash !== "#" + seccion) {
+        history.replaceState(null, "", "#" + seccion);
+    }
+
+    ocultarAviso();
+
+    if (typeof config.cargar === "function") {
+        config.cargar().catch((error) => {
+            mostrarAviso(error.message || "No fue posible cargar la sección.");
+        });
+    }
+}
+
+/* ============================================================
+   Gráficas
+   ============================================================ */
+
+const COLORES = {
+    rojo: "#c3002f", rojoSuave: "rgba(195,0,47,.15)",
+    verde: "#14804a", verdeSuave: "rgba(20,128,74,.15)",
+    azul: "#2858a6", azulSuave: "rgba(40,88,166,.15)",
+    naranja: "#a85b08", naranjaSuave: "rgba(168,91,8,.15)",
+    morado: "#6d3fb0", gris: "#7b8290",
+    paleta: ["#c3002f", "#2858a6", "#14804a", "#a85b08", "#6d3fb0", "#0b7285", "#c2255c"]
+};
+
+function animacionesActivas() {
+    const prefs = obtenerPrefs();
+    return prefs.animaciones !== false;
+}
+
+function hayDatos(valores) {
+    return valores.some((v) => Number(v) > 0);
+}
+
+function pintarGrafica(idCanvas, idVacio, config, valores) {
+    const canvas = document.getElementById(idCanvas);
+    const vacio = document.getElementById(idVacio);
+
+    if (!canvas) return;
+
+    if (typeof Chart === "undefined") {
+        canvas.style.display = "none";
+        if (vacio) {
+            vacio.style.display = "flex";
+            vacio.querySelector("span").textContent =
+                "Gráficas no disponibles (no se pudo cargar Chart.js).";
+        }
+        return;
+    }
+
+    if (state.charts[idCanvas]) {
+        state.charts[idCanvas].destroy();
+        delete state.charts[idCanvas];
+    }
+
+    canvas.style.display = "block";
+
+    if (vacio) vacio.style.display = hayDatos(valores) ? "none" : "flex";
+
+    config.options = config.options || {};
+    config.options.responsive = true;
+    config.options.maintainAspectRatio = false;
+    config.options.animation = animacionesActivas() ? undefined : false;
+
+    state.charts[idCanvas] = new Chart(canvas.getContext("2d"), config);
+}
+
+function crearTarjeta(id, etiqueta, icono, color) {
+    return `
+        <article class="stat-card">
+            <div class="stat-icon ${color}"><i class="fa-solid ${icono}"></i></div>
+            <div><small>${escapar(etiqueta)}</small><strong id="${id}">—</strong></div>
+        </article>`;
+}
+
+async function cargarDashboard() {
+    const cont = $("#dashStats");
+    cont.innerHTML = `<div class="stat-card"><div class="stat-icon red"><span class="spinner"></span></div><div><small>Cargando</small><strong>...</strong></div></div>`;
+
+    const datos = await api("/api/dashboard");
+    const r = datos.resumen;
+
+    cont.innerHTML = [
+        crearTarjeta("sClientes", "Total de clientes", "fa-users", "red"),
+        crearTarjeta("sConversaciones", "Total de conversaciones", "fa-comments", "blue"),
+        crearTarjeta("sMensajes", "Total de mensajes", "fa-message", "purple"),
+        crearTarjeta("sCitas", "Citas registradas", "fa-calendar-check", "green"),
+        crearTarjeta("sCitasPend", "Citas pendientes", "fa-hourglass-half", "orange"),
+        crearTarjeta("sCitasConf", "Citas confirmadas", "fa-circle-check", "green"),
+        crearTarjeta("sCitasCanc", "Citas canceladas", "fa-circle-xmark", "red"),
+        crearTarjeta("sVehiculos", "Vehículos registrados", "fa-car", "red"),
+        crearTarjeta("sDisponibles", "Vehículos disponibles", "fa-car-side", "green"),
+        crearTarjeta("sInactivos", "Vehículos inactivos", "fa-ban", "orange"),
+        crearTarjeta("sIntentos", "Intentos de acceso (7 días)", "fa-shield-halved", "blue"),
+        crearTarjeta("sUsuarios", "Usuarios activos", "fa-user-shield", "purple")
+    ].join("");
+
+    $("#sClientes").textContent = r.clientes;
+    $("#sConversaciones").textContent = r.conversaciones;
+    $("#sMensajes").textContent = r.mensajes;
+    $("#sCitas").textContent = r.citas.total;
+    $("#sCitasPend").textContent = r.citas.pendientes;
+    $("#sCitasConf").textContent = r.citas.confirmadas;
+    $("#sCitasCanc").textContent = r.citas.canceladas;
+    $("#sVehiculos").textContent = r.vehiculos.total;
+    $("#sDisponibles").textContent = r.vehiculos.disponibles;
+    $("#sInactivos").textContent = r.vehiculos.inactivos;
+    $("#sIntentos").textContent = r.intentosRecientes;
+    $("#sUsuarios").textContent = r.usuariosActivos;
+
+    const g = datos.graficas;
+
+    pintarGrafica("chartMensajesDia", "vacioMensajesDia", {
+        type: "line",
+        data: {
+            labels: g.mensajesPorDia.map((p) => p.etiqueta),
+            datasets: [{
+                label: "Mensajes",
+                data: g.mensajesPorDia.map((p) => p.total),
+                borderColor: COLORES.rojo,
+                backgroundColor: COLORES.rojoSuave,
+                fill: true,
+                tension: .35,
+                pointRadius: 3
+            }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    }, g.mensajesPorDia.map((p) => p.total));
+
+    pintarGrafica("chartConversacionesDia", "vacioConversacionesDia", {
+        type: "line",
+        data: {
+            labels: g.conversacionesPorDia.map((p) => p.etiqueta),
+            datasets: [{
+                label: "Conversaciones",
+                data: g.conversacionesPorDia.map((p) => p.total),
+                borderColor: COLORES.azul,
+                backgroundColor: COLORES.azulSuave,
+                fill: true,
+                tension: .35,
+                pointRadius: 3
+            }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    }, g.conversacionesPorDia.map((p) => p.total));
+
+    pintarGrafica("chartMensajesHora", "vacioMensajesHora", {
+        type: "bar",
+        data: {
+            labels: g.mensajesPorHora.map((p) => p.etiqueta),
+            datasets: [{
+                label: "Mensajes",
+                data: g.mensajesPorHora.map((p) => p.total),
+                backgroundColor: COLORES.morado,
+                borderRadius: 4
+            }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    }, g.mensajesPorHora.map((p) => p.total));
+
+    pintarGrafica("chartCitasEstado", "vacioCitasEstado", {
+        type: "doughnut",
+        data: {
+            labels: g.citasPorEstado.map((p) => p.etiqueta),
+            datasets: [{
+                data: g.citasPorEstado.map((p) => p.total),
+                backgroundColor: COLORES.paleta
+            }]
+        },
+        options: { plugins: { legend: { position: "bottom" } } }
+    }, g.citasPorEstado.map((p) => p.total));
+
+    pintarGrafica("chartInventarioModelo", "vacioInventarioModelo", {
+        type: "bar",
+        data: {
+            labels: g.inventarioPorModelo.map((p) => p.etiqueta),
+            datasets: [{
+                label: "Vehículos",
+                data: g.inventarioPorModelo.map((p) => p.total),
+                backgroundColor: COLORES.rojo,
+                borderRadius: 4
+            }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    }, g.inventarioPorModelo.map((p) => p.total));
+
+    pintarGrafica("chartDisponibilidad", "vacioDisponibilidad", {
+        type: "doughnut",
+        data: {
+            labels: g.vehiculosPorDisponibilidad.map((p) => p.etiqueta),
+            datasets: [{
+                data: g.vehiculosPorDisponibilidad.map((p) => p.total),
+                backgroundColor: COLORES.paleta
+            }]
+        },
+        options: { plugins: { legend: { position: "bottom" } } }
+    }, g.vehiculosPorDisponibilidad.map((p) => p.total));
+
+    // Actividad reciente
+    const eventos = datos.actividadReciente || [];
+    const body = $("#actividadBody");
+
+    if (!eventos.length) {
+        body.innerHTML = `<tr><td colspan="4"><div class="empty-state">
+            <i class="fa-solid fa-wave-square"></i>
+            <strong>Sin actividad reciente</strong>
+            <p>Cuando existan mensajes, citas, accesos o cambios, aparecerán aquí.</p>
+        </div></td></tr>`;
+        return;
+    }
+
+    const etiquetas = { mensaje: "Mensaje", cita: "Cita", acceso: "Acceso", auditoria: "Auditoría" };
+    const clases = { mensaje: "blue", cita: "green", acceso: "orange", auditoria: "purple" };
+
+    body.innerHTML = eventos.map((e) => `
+        <tr>
+            <td><span class="pill ${clases[e.tipo] || "gray"}">${escapar(etiquetas[e.tipo] || e.tipo)}</span></td>
+            <td class="cell-strong">${escapar(e.titulo)}</td>
+            <td class="cell-wrap cell-muted">${escapar(e.detalle || "—")}</td>
+            <td>${fecha(e.fecha)}</td>
+        </tr>`).join("");
+}
+
+/* ============================================================
+   Clientes
+   ============================================================ */
+
+async function cargarClientes() {
+    const body = $("#clientesBody");
+    body.innerHTML = `<tr><td colspan="8" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Consultando clientes...</td></tr>`;
+
+    try {
+        const buscar = $("#clientesBuscar").value.trim();
+        const datos = await api("/api/clientes" + (buscar ? "?buscar=" + encodeURIComponent(buscar) : ""));
+        const clientes = datos.clientes || [];
+
+        $("#clientesCount").textContent = clientes.length + (clientes.length === 1 ? " cliente" : " clientes");
+
+        if (!clientes.length) {
+            body.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+                <i class="fa-solid fa-users"></i><strong>No hay clientes registrados</strong>
+                <p>Los clientes aparecen cuando existen conversaciones con datos de contacto.</p>
+            </div></td></tr>`;
+            return;
+        }
+
+        body.innerHTML = clientes.map((c) => {
+            const clave = escapar(c.Clave);
+            return `
+            <tr>
+                <td>
+                    <div class="vehicle-name">
+                        <div class="vehicle-icon"><i class="fa-solid fa-user"></i></div>
+                        <div>
+                            <strong>${escapar(c.Nombre || "Sin nombre")}</strong>
+                            <small>${escapar(c.Correo || "Sin correo")}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>${escapar(c.Telefono || "—")}</td>
+                <td>${escapar(c.Correo || "—")}</td>
+                <td>${escapar(c.Conversaciones)}</td>
+                <td>${escapar(c.Mensajes)}</td>
+                <td>${soloFecha(c.FechaRegistro)}</td>
+                <td>${fecha(c.UltimaActividad)}</td>
+                <td>
+                    <div class="actions">
+                        <button class="icon-button" type="button" title="Ver conversaciones"
+                                data-ver-cliente="${escapar(c.Telefono || "")}">
+                            <i class="fa-solid fa-comments"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join("");
+    } catch (error) {
+        $("#clientesCount").textContent = "Error de consulta";
+        body.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i><strong>No fue posible cargar los clientes</strong>
+            <p>${escapar(error.message)}</p></div></td></tr>`;
+    }
+}
+
+/* ============================================================
+   Conversaciones
+   ============================================================ */
+
+async function cargarOpcionesConversaciones() {
+    try {
+        const datos = await api("/api/conversaciones/opciones");
+        const selEstado = $("#convEstado");
+        const selCanal = $("#convCanal");
+
+        (datos.estados || []).forEach((e) => selEstado.add(new Option(e, e)));
+        (datos.canales || []).forEach((c) => selCanal.add(new Option(c, c)));
+    } catch (error) {
+        // Silencioso: los filtros quedan solo con "Todos".
+    }
+}
+
+async function cargarConversaciones() {
+    const body = $("#convBody");
+    body.innerHTML = `<tr><td colspan="8" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Consultando conversaciones...</td></tr>`;
+
+    try {
+        const params = new URLSearchParams();
+        const buscar = $("#convBuscar").value.trim();
+        if (buscar) params.set("buscar", buscar);
+        if ($("#convEstado").value) params.set("estado", $("#convEstado").value);
+        if ($("#convCanal").value) params.set("canal", $("#convCanal").value);
+        params.set("pagina", state.convPagina);
+        params.set("porPagina", state.convPorPagina);
+
+        const datos = await api("/api/conversaciones?" + params.toString());
+        const items = datos.conversaciones || [];
+        state.convItems = items;
+        state.convTotal = datos.total || 0;
+
+        $("#convCount").textContent = state.convTotal + (state.convTotal === 1 ? " conversación" : " conversaciones");
+
+        const totalPaginas = Math.max(1, Math.ceil(state.convTotal / state.convPorPagina));
+        $("#convPaginaInfo").textContent = `Página ${state.convPagina} de ${totalPaginas}`;
+        $("#convPrev").disabled = state.convPagina <= 1;
+        $("#convNext").disabled = state.convPagina >= totalPaginas;
+
+        if (!items.length) {
+            body.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+                <i class="fa-solid fa-comments"></i><strong>No hay conversaciones</strong>
+                <p>Aún no se han registrado conversaciones con estos filtros.</p>
+            </div></td></tr>`;
+            return;
+        }
+
+        body.innerHTML = items.map((c) => `
+            <tr>
+                <td>
+                    <div class="vehicle-name">
+                        <div class="vehicle-icon"><i class="fa-solid fa-user"></i></div>
+                        <div>
+                            <strong>${escapar(c.NombreCliente || "Cliente sin nombre")}</strong>
+                            <small>${escapar(c.TelefonoCliente || "Sin teléfono")}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>${escapar(c.CorreoCliente || "—")}</td>
+                <td><span class="pill gray">${escapar(c.Canal)}</span></td>
+                <td><span class="pill ${c.Estado === "Activa" ? "green" : "gray"}">${escapar(c.Estado)}</span></td>
+                <td>${escapar(c.TotalMensajes)}</td>
+                <td>${fecha(c.FechaInicio)}</td>
+                <td>${c.FechaFin ? fecha(c.FechaFin) : "—"}</td>
+                <td>
+                    <div class="actions">
+                        <button class="icon-button" type="button" title="Ver mensajes"
+                                data-ver-conv="${Number(c.ConversacionId)}">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`).join("");
+    } catch (error) {
+        $("#convCount").textContent = "Error de consulta";
+        body.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i><strong>No fue posible cargar las conversaciones</strong>
+            <p>${escapar(error.message)}</p></div></td></tr>`;
+    }
+}
+
+async function verConversacion(id) {
+    abrirModal(`
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div>
+                        <h2>Historial de conversación</h2>
+                        <p>Cargando mensajes...</p>
+                    </div>
+                    <button class="close-modal" type="button" data-close aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div id="chatContenido" class="chat-wrap">
+                    <div class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+                </div>
+            </div>
+        </div>
+    `);
+
+    try {
+        const datos = await api("/api/conversaciones/" + id + "/mensajes");
+        const c = datos.conversacion;
+        const mensajes = datos.mensajes || [];
+
+        modalRoot.querySelector(".modal-header p").innerHTML =
+            `<strong>${escapar(c.NombreCliente || "Cliente")}</strong> · ` +
+            `${escapar(c.TelefonoCliente || "Sin teléfono")} · ` +
+            `${escapar(c.Canal)} · ${escapar(c.Estado)}`;
+
+        const cont = modalRoot.querySelector("#chatContenido");
+
+        if (!mensajes.length) {
+            cont.innerHTML = `<div class="empty-state">
+                <i class="fa-solid fa-comment-slash"></i><strong>Sin mensajes</strong>
+                <p>Esta conversación no tiene mensajes registrados.</p></div>`;
+            return;
+        }
+
+        cont.innerHTML = mensajes.map((m) => {
+            const esUsuario = String(m.Emisor).toLowerCase() === "usuario";
+            return `<div class="chat-bubble ${esUsuario ? "usuario" : "asistente"}">
+                ${escapar(m.Contenido)}
+                <small>${escapar(m.Emisor)}${m.IntencionDetectada ? " · " + escapar(m.IntencionDetectada) : ""} · ${fecha(m.FechaMensaje)}</small>
+            </div>`;
+        }).join("");
+
+        cont.scrollTop = cont.scrollHeight;
+    } catch (error) {
+        modalRoot.querySelector("#chatContenido").innerHTML =
+            `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>
+             <strong>No fue posible cargar los mensajes</strong><p>${escapar(error.message)}</p></div>`;
+    }
+}
+
+/* ============================================================
+   Citas
+   ============================================================ */
+
+function claseEstadoCita(estado) {
+    switch (estado) {
+        case "Confirmada": return "green";
+        case "Pendiente": return "orange";
+        case "Completada": return "blue";
+        case "Cancelada": return "red";
+        case "Reprogramada": return "purple";
+        default: return "gray";
+    }
+}
+
+async function cargarOpcionesCitas() {
+    try {
+        const datos = await api("/api/citas/opciones");
+        state.citasOpciones = { estados: datos.estados || [], servicios: datos.servicios || [] };
+
+        const sel = $("#citasEstado");
+        sel.innerHTML = '<option value="">Todos los estados</option>';
+        state.citasOpciones.estados.forEach((e) => sel.add(new Option(e, e)));
+    } catch (error) {
+        // Silencioso.
+    }
+}
+
+async function cargarCitas() {
+    const body = $("#citasBody");
+    body.innerHTML = `<tr><td colspan="7" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Consultando citas...</td></tr>`;
+
+    try {
+        const params = new URLSearchParams();
+        if ($("#citasBuscar").value.trim()) params.set("buscar", $("#citasBuscar").value.trim());
+        if ($("#citasEstado").value) params.set("estado", $("#citasEstado").value);
+        if ($("#citasDesde").value) params.set("desde", $("#citasDesde").value + "T00:00:00.000Z");
+        if ($("#citasHasta").value) params.set("hasta", $("#citasHasta").value + "T23:59:59.000Z");
+
+        const datos = await api("/api/citas" + (params.toString() ? "?" + params.toString() : ""));
+        const citas = datos.citas || [];
+        state.citas = citas;
+
+        $("#citasCount").textContent = citas.length + (citas.length === 1 ? " cita" : " citas");
+
+        if (!citas.length) {
+            body.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+                <i class="fa-solid fa-calendar-xmark"></i><strong>No hay citas</strong>
+                <p>No se encontraron citas con los filtros actuales.</p></div></td></tr>`;
+            return;
+        }
+
+        const editable = state.puedeCitas;
+
+        body.innerHTML = citas.map((c) => `
+            <tr>
+                <td class="cell-strong">${escapar(c.NombreCliente)}</td>
+                <td class="cell-muted">${escapar(c.TelefonoCliente || c.CorreoCliente || "—")}</td>
+                <td>${escapar(c.Servicio)}</td>
+                <td>${fecha(c.FechaCita)}</td>
+                <td>${escapar(c.Modelo || "—")}</td>
+                <td><span class="pill ${claseEstadoCita(c.Estado)}">${escapar(c.Estado)}</span></td>
+                <td>
+                    <div class="actions">
+                        ${editable ? `
+                        <button class="icon-button" type="button" title="Editar cita"
+                                data-editar-cita="${Number(c.CitaId)}">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="icon-button" type="button" title="Cambiar estado"
+                                data-estado-cita="${Number(c.CitaId)}">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>` : `<span class="cell-muted">Solo lectura</span>`}
+                    </div>
+                </td>
+            </tr>`).join("");
+    } catch (error) {
+        $("#citasCount").textContent = "Error de consulta";
+        body.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i><strong>No fue posible cargar las citas</strong>
+            <p>${escapar(error.message)}</p></div></td></tr>`;
+    }
+}
+
+function modalCita(cita = null) {
+    const estados = state.citasOpciones.estados.length
+        ? state.citasOpciones.estados
+        : ["Pendiente", "Confirmada", "Cancelada", "Completada", "Reprogramada"];
+    const servicios = state.citasOpciones.servicios || [];
+
+    const opcionesEstado = estados.map((e) =>
+        `<option value="${escapar(e)}"${cita && cita.Estado === e ? " selected" : ""}>${escapar(e)}</option>`
+    ).join("");
+
+    const modeloOpciones = ['<option value="">Sin modelo específico</option>']
+        .concat(state.modelos.map((m) => {
+            const sel = cita && Number(cita.ModeloId) === Number(m.ModeloId) ? " selected" : "";
+            return `<option value="${Number(m.ModeloId)}"${sel}>${escapar(m.Nombre)}</option>`;
+        })).join("");
+
+    abrirModal(`
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div>
+                        <h2>${cita ? "Editar cita" : "Agregar cita"}</h2>
+                        <p>${cita ? "Actualiza los datos de la cita." : "Registra una nueva cita de cliente."}</p>
+                    </div>
+                    <button class="close-modal" type="button" data-close aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="citaForm">
+                    <div class="form-grid">
+                        <div class="field full">
+                            <label for="citaNombre">Cliente *</label>
+                            <input id="citaNombre" maxlength="150" required
+                                   value="${cita ? escapar(cita.NombreCliente) : ""}">
+                        </div>
+                        <div class="field">
+                            <label for="citaTelefono">Teléfono</label>
+                            <input id="citaTelefono" maxlength="30"
+                                   value="${cita ? escapar(cita.TelefonoCliente || "") : ""}">
+                        </div>
+                        <div class="field">
+                            <label for="citaCorreo">Correo</label>
+                            <input id="citaCorreo" type="email" maxlength="254"
+                                   value="${cita ? escapar(cita.CorreoCliente || "") : ""}">
+                        </div>
+                        <div class="field">
+                            <label for="citaServicio">Servicio *</label>
+                            <input id="citaServicio" list="listaServicios" maxlength="100" required
+                                   value="${cita ? escapar(cita.Servicio) : ""}">
+                            <datalist id="listaServicios">
+                                ${servicios.map((s) => `<option value="${escapar(s)}"></option>`).join("")}
+                            </datalist>
+                        </div>
+                        <div class="field">
+                            <label for="citaModelo">Modelo</label>
+                            <select id="citaModelo">${modeloOpciones}</select>
+                        </div>
+                        <div class="field">
+                            <label for="citaFecha">Fecha y hora *</label>
+                            <input id="citaFecha" type="datetime-local" required
+                                   value="${cita ? aInputDatetime(cita.FechaCita) : ""}">
+                        </div>
+                        <div class="field">
+                            <label for="citaEstado">Estado *</label>
+                            <select id="citaEstado" required>${opcionesEstado}</select>
+                        </div>
+                        <div class="field full">
+                            <label for="citaNotas">Notas</label>
+                            <textarea id="citaNotas" maxlength="500">${cita ? escapar(cita.Notas || "") : ""}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="button button-light" type="button" data-close>Cancelar</button>
+                        <button class="button button-primary" type="submit">
+                            <i class="fa-solid fa-floppy-disk"></i> ${cita ? "Guardar cambios" : "Registrar cita"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `);
+
+    const form = modalRoot.querySelector("#citaForm");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (!form.reportValidity()) return;
+
+        const fechaInput = modalRoot.querySelector("#citaFecha").value;
+
+        const payload = {
+            NombreCliente: modalRoot.querySelector("#citaNombre").value.trim(),
+            TelefonoCliente: modalRoot.querySelector("#citaTelefono").value.trim(),
+            CorreoCliente: modalRoot.querySelector("#citaCorreo").value.trim(),
+            Servicio: modalRoot.querySelector("#citaServicio").value.trim(),
+            ModeloId: modalRoot.querySelector("#citaModelo").value || null,
+            FechaCita: fechaInput ? fechaInput + ":00.000Z" : "",
+            Estado: modalRoot.querySelector("#citaEstado").value,
+            Notas: modalRoot.querySelector("#citaNotas").value.trim()
+        };
+
+        const boton = form.querySelector('button[type="submit"]');
+        boton.disabled = true;
+        boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+        try {
+            await api(cita ? "/api/citas/" + cita.CitaId : "/api/citas", {
+                method: cita ? "PUT" : "POST",
+                body: JSON.stringify(payload)
+            });
+            cerrarModal();
+            mostrarToast(cita ? "Cita actualizada correctamente." : "Cita registrada correctamente.", "success");
+            await cargarCitas();
+        } catch (error) {
+            mostrarToast(error.message, "error");
+            boton.disabled = false;
+            boton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
+        }
+    });
+}
+
+function modalEstadoCita(cita) {
+    const estados = state.citasOpciones.estados.length
+        ? state.citasOpciones.estados
+        : ["Pendiente", "Confirmada", "Cancelada", "Completada", "Reprogramada"];
+
+    abrirModal(`
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-card modal-small">
+                <div class="modal-header">
+                    <div>
+                        <h2>Cambiar estado</h2>
+                        <p>${escapar(cita.NombreCliente)} · ${escapar(cita.Servicio)}</p>
+                    </div>
+                    <button class="close-modal" type="button" data-close aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="card-pad">
+                    <div class="field">
+                        <label for="nuevoEstado">Nuevo estado</label>
+                        <select id="nuevoEstado">
+                            ${estados.map((e) => `<option value="${escapar(e)}"${cita.Estado === e ? " selected" : ""}>${escapar(e)}</option>`).join("")}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="button button-light" type="button" data-close>Cancelar</button>
+                    <button id="guardarEstado" class="button button-primary" type="button">
+                        <i class="fa-solid fa-check"></i> Guardar estado
+                    </button>
+                </div>
+            </div>
+        </div>
+    `);
+
+    modalRoot.querySelector("#guardarEstado").addEventListener("click", async (ev) => {
+        const boton = ev.currentTarget;
+        boton.disabled = true;
+        boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+        try {
+            await api("/api/citas/" + cita.CitaId + "/estado", {
+                method: "PATCH",
+                body: JSON.stringify({ estado: modalRoot.querySelector("#nuevoEstado").value })
+            });
+            cerrarModal();
+            mostrarToast("Estado actualizado correctamente.", "success");
+            await cargarCitas();
+        } catch (error) {
+            mostrarToast(error.message, "error");
+            boton.disabled = false;
+            boton.innerHTML = '<i class="fa-solid fa-check"></i> Guardar estado';
+        }
+    });
+}
+
+/* ============================================================
+   Inventario
+   ============================================================ */
+
+function claseEstado(estado) {
+    switch (estado) {
+        case "Disponible": return "green";
+        case "Apartado": return "orange";
+        case "Vendido": return "blue";
+        case "Mantenimiento": return "red";
+        default: return "gray";
+    }
+}
+
+async function cargarModelos() {
+    const datos = await api("/api/inventario/modelos");
+    state.modelos = datos.modelos || [];
+
+    const selector = $("#ModeloId");
+    if (!selector) return;
+
+    selector.replaceChildren();
+
+    if (!state.modelos.length) {
+        selector.add(new Option("No hay modelos activos", ""));
+        if ($("#addVehicleButton")) $("#addVehicleButton").disabled = true;
+        return;
+    }
+
+    selector.add(new Option("Selecciona un modelo", ""));
+    state.modelos.forEach((m) => selector.add(new Option(m.Nombre, m.ModeloId)));
+}
+
+function renderizarVehiculos(vehiculos) {
+    state.vehiculos = vehiculos;
+    const tableBody = $("#vehicleTableBody");
+
+    $("#resultCount").textContent = vehiculos.length + (vehiculos.length === 1 ? " resultado" : " resultados");
+    $("#statVehicles").textContent = vehiculos.length;
+    $("#statAvailable").textContent = vehiculos.filter((v) => v.Estado === "Disponible" && Boolean(v.Activo)).length;
+    $("#statStock").textContent = vehiculos.filter((v) => Boolean(v.Activo)).reduce((t, v) => t + Number(v.Existencia || 0), 0);
+    $("#statInactive").textContent = vehiculos.filter((v) => !Boolean(v.Activo)).length;
+
+    if (!vehiculos.length) {
+        tableBody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+            <i class="fa-solid fa-car-side"></i><strong>No se encontraron vehículos</strong>
+            <p>Prueba con otro filtro o agrega un vehículo al inventario.</p></div></td></tr>`;
+        return;
+    }
+
+    tableBody.innerHTML = vehiculos.map((v) => {
+        const activo = Boolean(v.Activo);
+        const botonEditar = state.esAdmin
+            ? `<button class="icon-button" type="button" data-action="edit" data-id="${Number(v.VehiculoId)}"
+                       title="Editar vehículo" aria-label="Editar vehículo"><i class="fa-solid fa-pen"></i></button>`
+            : "";
+        const botonActivo = state.esAdmin
+            ? `<button class="icon-button ${!activo ? "toggle-off" : ""}" type="button" data-action="toggle"
+                       data-id="${Number(v.VehiculoId)}" data-active="${activo ? "true" : "false"}"
+                       title="${activo ? "Desactivar" : "Activar"} vehículo"><i class="fa-solid ${activo ? "fa-ban" : "fa-circle-check"}"></i></button>`
+            : "";
+
+        return `
+            <tr>
+                <td>
+                    <div class="vehicle-name">
+                        <div class="vehicle-icon"><i class="fa-solid fa-car-side"></i></div>
+                        <div>
+                            <strong>${escapar(v.Modelo)}</strong>
+                            <small>${escapar(v.Version || "Sin versión")}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>${escapar(v.Anio)}</td>
+                <td>${escapar(v.Color || "—")}</td>
+                <td class="price">${moneda(v.Precio)}</td>
+                <td>${escapar(v.Existencia)}</td>
+                <td><span class="pill ${claseEstado(v.Estado)}">${escapar(v.Estado)}</span></td>
+                <td><span class="pill ${activo ? "green" : "gray"}">
+                    <i class="fa-solid ${activo ? "fa-check" : "fa-minus"}"></i> ${activo ? "Activo" : "Inactivo"}
+                </span></td>
+                <td><div class="actions">${botonEditar}${botonActivo}</div></td>
+            </tr>`;
+    }).join("");
+}
+
+async function cargarInventario() {
+    ocultarAviso();
+    const tableBody = $("#vehicleTableBody");
+    tableBody.innerHTML = `<tr><td colspan="8" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Consultando inventario...</td></tr>`;
+
+    try {
+        const params = new URLSearchParams();
+        if ($("#searchInput").value.trim()) params.set("buscar", $("#searchInput").value.trim());
+        if ($("#statusFilter").value) params.set("estado", $("#statusFilter").value);
+        if ($("#activeFilter").value !== "") params.set("activo", $("#activeFilter").value);
+
+        const datos = await api("/api/inventario" + (params.toString() ? "?" + params.toString() : ""));
+        renderizarVehiculos(datos.vehiculos || []);
+    } catch (error) {
+        mostrarAviso(error.message);
+        tableBody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i><strong>No fue posible cargar el inventario</strong>
+            <p>Comprueba que el backend esté funcionando e inténtalo de nuevo.</p></div></td></tr>`;
+        $("#resultCount").textContent = "Error de consulta";
+    }
+}
+
+function abrirModalVehiculo(vehiculo = null) {
+    if (!state.esAdmin) {
+        mostrarToast("Solo el administrador puede modificar el inventario.", "error");
+        return;
+    }
+    if (!state.modelos.length) {
+        mostrarToast("Primero debes tener modelos Nissan activos.", "error");
+        return;
+    }
+
+    state.editandoId = vehiculo ? Number(vehiculo.VehiculoId) : null;
+
+    const opciones = state.modelos.map((m) =>
+        `<option value="${Number(m.ModeloId)}"${vehiculo && Number(vehiculo.ModeloId) === Number(m.ModeloId) ? " selected" : ""}>${escapar(m.Nombre)}</option>`
+    ).join("");
+
+    abrirModal(`
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div>
+                        <h2>${vehiculo ? "Editar vehículo" : "Agregar vehículo"}</h2>
+                        <p>Completa los datos que se guardarán en el inventario.</p>
+                    </div>
+                    <button class="close-modal" type="button" data-close aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="vehicleForm">
+                    <div class="form-grid">
+                        <div class="field full">
+                            <label for="ModeloId">Modelo Nissan *</label>
+                            <select id="ModeloId" required>
+                                <option value="">Selecciona un modelo</option>
+                                ${opciones}
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="Anio">Año *</label>
+                            <input id="Anio" type="number" min="1900" max="2100" step="1" required
+                                   value="${vehiculo ? escapar(vehiculo.Anio) : new Date().getFullYear()}">
+                        </div>
+                        <div class="field">
+                            <label for="Version">Versión</label>
+                            <input id="Version" maxlength="100" placeholder="Ej. Sense"
+                                   value="${vehiculo ? escapar(vehiculo.Version || "") : ""}">
+                        </div>
+                        <div class="field">
+                            <label for="Color">Color</label>
+                            <input id="Color" maxlength="50" placeholder="Ej. Blanco"
+                                   value="${vehiculo ? escapar(vehiculo.Color || "") : ""}">
+                        </div>
+                        <div class="field">
+                            <label for="Precio">Precio (MXN) *</label>
+                            <input id="Precio" type="number" min="0" max="9999999999.99" step="0.01" required
+                                   value="${vehiculo ? escapar(vehiculo.Precio) : ""}">
+                        </div>
+                        <div class="field">
+                            <label for="Existencia">Existencia *</label>
+                            <input id="Existencia" type="number" min="0" step="1" required
+                                   value="${vehiculo ? escapar(vehiculo.Existencia) : 1}">
+                        </div>
+                        <div class="field">
+                            <label for="Estado">Estado *</label>
+                            <select id="Estado" required>
+                                ${["Disponible", "Apartado", "Vendido", "Mantenimiento"].map((e) =>
+                                    `<option value="${e}"${vehiculo && vehiculo.Estado === e ? " selected" : ""}>${e}</option>`
+                                ).join("")}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="button button-light" type="button" data-close>Cancelar</button>
+                        <button id="saveVehicleButton" class="button button-primary" type="submit">
+                            <i class="fa-solid fa-floppy-disk"></i> ${vehiculo ? "Guardar cambios" : "Registrar vehículo"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `);
+
+    const form = modalRoot.querySelector("#vehicleForm");
+
+    form.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+
+        if (state.guardando) return;
+        if (!form.reportValidity()) return;
+
+        const datos = {
+            ModeloId: Number(modalRoot.querySelector("#ModeloId").value),
+            Anio: Number(modalRoot.querySelector("#Anio").value),
+            Version: modalRoot.querySelector("#Version").value.trim(),
+            Color: modalRoot.querySelector("#Color").value.trim(),
+            Precio: Number(modalRoot.querySelector("#Precio").value),
+            Existencia: Number(modalRoot.querySelector("#Existencia").value),
+            Estado: modalRoot.querySelector("#Estado").value
+        };
+
+        state.guardando = true;
+        const boton = modalRoot.querySelector("#saveVehicleButton");
+        boton.disabled = true;
+        boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+        try {
+            const editando = state.editandoId !== null;
+            await api(editando ? "/api/inventario/" + state.editandoId : "/api/inventario", {
+                method: editando ? "PUT" : "POST",
+                body: JSON.stringify(datos)
+            });
+
+            cerrarModal();
+            mostrarToast(editando ? "Vehículo actualizado correctamente." : "Vehículo registrado correctamente.", "success");
+            await cargarInventario();
+        } catch (error) {
+            mostrarToast(error.message, "error");
+            boton.disabled = false;
+            boton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
+        } finally {
+            state.guardando = false;
+        }
+    });
+}
+
+async function cambiarActivoVehiculo(id, actualmenteActivo) {
+    const accion = actualmenteActivo ? "desactivar" : "activar";
+    const ok = await confirmarAccion({
+        titulo: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} vehículo?`,
+        mensaje: `El vehículo se ${accion === "desactivar" ? "marcará como inactivo" : "activará"} en el inventario.`,
+        textoConfirmar: accion.charAt(0).toUpperCase() + accion.slice(1),
+        peligro: actualmenteActivo
+    });
+
+    if (!ok) return;
+
+    try {
+        await api(`/api/inventario/${id}/activo`, {
+            method: "PATCH",
+            body: JSON.stringify({ activo: !actualmenteActivo })
+        });
+        mostrarToast(`Vehículo ${actualmenteActivo ? "desactivado" : "activado"} correctamente.`, "success");
+        await cargarInventario();
+    } catch (error) {
+        mostrarToast(error.message, "error");
+    }
+}
+
+/* ============================================================
+   Historial
+   ============================================================ */
+
+async function cargarHistorial() {
+    const body = $("#histBody");
+    body.innerHTML = `<tr><td colspan="6" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Consultando historial...</td></tr>`;
+
+    try {
+        const params = new URLSearchParams();
+        params.set("tipo", state.histTipo);
+        if ($("#histBuscar").value.trim()) params.set("buscar", $("#histBuscar").value.trim());
+        if ($("#histDesde").value) params.set("desde", $("#histDesde").value + "T00:00:00.000Z");
+        if ($("#histHasta").value) params.set("hasta", $("#histHasta").value + "T23:59:59.000Z");
+
+        const datos = await api("/api/historial?" + params.toString());
+        const eventos = datos.eventos || [];
+
+        $("#histTitulo").textContent = ($$("#historialTabs .tab").find((t) => t.dataset.tipo === state.histTipo) || {}).textContent || "Historial";
+        $("#histCount").textContent = eventos.length + (eventos.length === 1 ? " evento" : " eventos");
+
+        if (datos.disponible === false) {
+            body.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+                <i class="fa-solid fa-circle-info"></i><strong>Historial no disponible</strong>
+                <p>Este historial requiere una tabla que aún no existe.</p></div></td></tr>`;
+            return;
+        }
+
+        if (!eventos.length) {
+            body.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+                <i class="fa-solid fa-clock-rotate-left"></i><strong>Sin eventos</strong>
+                <p>No hay registros con los filtros actuales.</p></div></td></tr>`;
+            return;
+        }
+
+        body.innerHTML = eventos.map((e) => `
+            <tr>
+                <td>${fecha(e.Fecha)}</td>
+                <td><span class="pill gray">${escapar(e.Tipo)}</span></td>
+                <td>${escapar(e.Emisor || "—")}</td>
+                <td>${escapar(e.Cliente || "—")}</td>
+                <td class="cell-wrap">${escapar(e.Detalle || "—")}</td>
+                <td class="cell-muted">${escapar(e.Referencia || "—")}</td>
+            </tr>`).join("");
+    } catch (error) {
+        $("#histCount").textContent = "Error de consulta";
+        body.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i><strong>No fue posible cargar el historial</strong>
+            <p>${escapar(error.message)}</p></div></td></tr>`;
+    }
+}
+
+/* ============================================================
+   Usuarios
+   ============================================================ */
+
+async function cargarRoles() {
+    if (state.roles.length) return;
+    try {
+        const datos = await api("/api/usuarios/roles");
+        state.roles = datos.roles || [];
+    } catch (error) {
+        state.roles = [];
+    }
+}
+
+async function cargarUsuarios() {
+    const body = $("#usuariosBody");
+    body.innerHTML = `<tr><td colspan="7" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Consultando usuarios...</td></tr>`;
+
+    try {
+        await cargarRoles();
+
+        // Rellenar el filtro de roles una sola vez.
+        const selRol = $("#usuariosRol");
+        if (selRol.options.length <= 1) {
+            state.roles.forEach((r) => selRol.add(new Option(r.Nombre, r.RolId)));
+        }
+
+        const params = new URLSearchParams();
+        if ($("#usuariosBuscar").value.trim()) params.set("buscar", $("#usuariosBuscar").value.trim());
+        if ($("#usuariosRol").value) params.set("rolId", $("#usuariosRol").value);
+        if ($("#usuariosActivo").value !== "") params.set("activo", $("#usuariosActivo").value);
+
+        const datos = await api("/api/usuarios" + (params.toString() ? "?" + params.toString() : ""));
+        const usuarios = datos.usuarios || [];
+        state.usuarios = usuarios;
+
+        $("#usuariosCount").textContent = usuarios.length + (usuarios.length === 1 ? " usuario" : " usuarios");
+
+        if (!usuarios.length) {
+            body.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+                <i class="fa-solid fa-user-shield"></i><strong>Sin usuarios</strong>
+                <p>No hay usuarios con los filtros actuales.</p></div></td></tr>`;
+            return;
+        }
+
+        body.innerHTML = usuarios.map((u) => {
+            const activo = Boolean(u.Activo);
+            return `
+            <tr>
+                <td class="cell-strong">${escapar(u.Nombre)}</td>
+                <td>${escapar(u.Correo)}</td>
+                <td><span class="pill blue">${escapar(u.Rol)}</span></td>
+                <td><span class="pill ${activo ? "green" : "gray"}">${activo ? "Activo" : "Inactivo"}</span></td>
+                <td>${u.UltimoAcceso ? fecha(u.UltimoAcceso) : "Nunca"}</td>
+                <td>${soloFecha(u.FechaCreacion)}</td>
+                <td>
+                    <div class="actions">
+                        <button class="icon-button" type="button" title="Editar"
+                                data-editar-user="${Number(u.UsuarioId)}"><i class="fa-solid fa-pen"></i></button>
+                        <button class="icon-button" type="button" title="Restablecer contraseña"
+                                data-reset-user="${Number(u.UsuarioId)}"><i class="fa-solid fa-key"></i></button>
+                        <button class="icon-button ${!activo ? "toggle-off" : ""}" type="button"
+                                title="${activo ? "Desactivar" : "Activar"}"
+                                data-toggle-user="${Number(u.UsuarioId)}" data-active="${activo ? "true" : "false"}">
+                            <i class="fa-solid ${activo ? "fa-ban" : "fa-circle-check"}"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join("");
+    } catch (error) {
+        $("#usuariosCount").textContent = "Error de consulta";
+        body.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i><strong>No fue posible cargar los usuarios</strong>
+            <p>${escapar(error.message)}</p></div></td></tr>`;
+    }
+}
+
+function modalUsuario(usuario = null) {
+    const roles = state.roles || [];
+    const opcionesRol = roles.map((r) =>
+        `<option value="${r.RolId}"${usuario && Number(usuario.RolId) === Number(r.RolId) ? " selected" : ""}>${escapar(r.Nombre)}</option>`
+    ).join("");
+
+    abrirModal(`
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div>
+                        <h2>${usuario ? "Editar usuario" : "Agregar usuario"}</h2>
+                        <p>${usuario ? "Actualiza la información del usuario." : "Crea una nueva cuenta con un rol permitido."}</p>
+                    </div>
+                    <button class="close-modal" type="button" data-close aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="userForm">
+                    <div class="form-grid">
+                        <div class="field full">
+                            <label for="userNombre">Nombre *</label>
+                            <input id="userNombre" maxlength="150" required
+                                   value="${usuario ? escapar(usuario.Nombre) : ""}">
+                        </div>
+                        <div class="field">
+                            <label for="userCorreo">Correo *</label>
+                            <input id="userCorreo" type="email" maxlength="254" required
+                                   value="${usuario ? escapar(usuario.Correo) : ""}">
+                        </div>
+                        <div class="field">
+                            <label for="userRol">Rol *</label>
+                            <select id="userRol" required>
+                                <option value="">Selecciona un rol</option>
+                                ${opcionesRol}
+                            </select>
+                        </div>
+                        ${usuario ? "" : `
+                        <div class="field full">
+                            <label for="userPassword">Contraseña inicial *</label>
+                            <input id="userPassword" type="password" minlength="8" maxlength="128" required
+                                   autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+                        </div>`}
+                        <div class="field full">
+                            <label class="checkbox-field">
+                                <input id="userActivo" type="checkbox" ${!usuario || usuario.Activo ? "checked" : ""}>
+                                Usuario activo
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="button button-light" type="button" data-close>Cancelar</button>
+                        <button class="button button-primary" type="submit">
+                            <i class="fa-solid fa-floppy-disk"></i> ${usuario ? "Guardar cambios" : "Crear usuario"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `);
+
+    const form = modalRoot.querySelector("#userForm");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (!form.reportValidity()) return;
+
+        const payload = {
+            Nombre: modalRoot.querySelector("#userNombre").value.trim(),
+            Correo: modalRoot.querySelector("#userCorreo").value.trim(),
+            RolId: Number(modalRoot.querySelector("#userRol").value),
+            Activo: modalRoot.querySelector("#userActivo").checked
+        };
+
+        if (!usuario) {
+            payload.Password = modalRoot.querySelector("#userPassword").value;
+        }
+
+        const boton = form.querySelector('button[type="submit"]');
+        boton.disabled = true;
+        boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+        try {
+            await api(usuario ? "/api/usuarios/" + usuario.UsuarioId : "/api/usuarios", {
+                method: usuario ? "PUT" : "POST",
+                body: JSON.stringify(payload)
+            });
+            cerrarModal();
+            mostrarToast(usuario ? "Usuario actualizado correctamente." : "Usuario creado correctamente.", "success");
+            await cargarUsuarios();
+        } catch (error) {
+            mostrarToast(error.message, "error");
+            boton.disabled = false;
+            boton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
+        }
+    });
+}
+
+function modalResetPassword(usuario) {
+    abrirModal(`
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-card modal-small">
+                <div class="modal-header">
+                    <div>
+                        <h2>Restablecer contraseña</h2>
+                        <p>${escapar(usuario.Nombre)} · ${escapar(usuario.Correo)}</p>
+                    </div>
+                    <button class="close-modal" type="button" data-close aria-label="Cerrar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="resetForm">
+                    <div class="card-pad">
+                        <div class="field">
+                            <label for="resetPassword">Nueva contraseña temporal *</label>
+                            <input id="resetPassword" type="password" minlength="8" maxlength="128" required
+                                   autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+                        </div>
+                        <div class="form-note" style="margin-top:14px">
+                            El usuario deberá cambiarla al iniciar sesión. No se muestra
+                            ni se guarda en texto plano.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="button button-light" type="button" data-close>Cancelar</button>
+                        <button class="button button-primary" type="submit">
+                            <i class="fa-solid fa-key"></i> Restablecer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `);
+
+    const form = modalRoot.querySelector("#resetForm");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!form.reportValidity()) return;
+
+        const boton = form.querySelector('button[type="submit"]');
+        boton.disabled = true;
+        boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+        try {
+            await api("/api/usuarios/" + usuario.UsuarioId + "/password", {
+                method: "PATCH",
+                body: JSON.stringify({ password: modalRoot.querySelector("#resetPassword").value })
+            });
+            cerrarModal();
+            mostrarToast("Contraseña restablecida correctamente.", "success");
+        } catch (error) {
+            mostrarToast(error.message, "error");
+            boton.disabled = false;
+            boton.innerHTML = '<i class="fa-solid fa-key"></i> Restablecer';
+        }
+    });
+}
+
+async function cambiarActivoUsuario(id, actualmenteActivo) {
+    const accion = actualmenteActivo ? "desactivar" : "activar";
+    const ok = await confirmarAccion({
+        titulo: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} usuario?`,
+        mensaje: actualmenteActivo
+            ? "El usuario no podrá iniciar sesión mientras esté inactivo."
+            : "El usuario podrá iniciar sesión nuevamente.",
+        textoConfirmar: accion.charAt(0).toUpperCase() + accion.slice(1),
+        peligro: actualmenteActivo
+    });
+
+    if (!ok) return;
+
+    try {
+        await api(`/api/usuarios/${id}/activo`, {
+            method: "PATCH",
+            body: JSON.stringify({ activo: !actualmenteActivo })
+        });
+        mostrarToast(`Usuario ${actualmenteActivo ? "desactivado" : "activado"} correctamente.`, "success");
+        await cargarUsuarios();
+    } catch (error) {
+        mostrarToast(error.message, "error");
+    }
+}
+
+/* ============================================================
+   Seguridad
+   ============================================================ */
+
+async function cargarSeguridad() {
+    if (state.segVista === "intentos") {
+        await cargarIntentos();
+    } else {
+        await cargarAuditoria();
+    }
+}
+
+async function cargarIntentos() {
+    const body = $("#segBody");
+    body.innerHTML = `<tr><td colspan="6" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Consultando...</td></tr>`;
+
+    try {
+        const params = new URLSearchParams();
+        if ($("#segBuscar").value.trim()) params.set("buscar", $("#segBuscar").value.trim());
+        if ($("#segResultado").value) params.set("resultado", $("#segResultado").value);
+        if ($("#segDesde").value) params.set("desde", $("#segDesde").value + "T00:00:00.000Z");
+
+        const datos = await api("/api/seguridad/intentos" + (params.toString() ? "?" + params.toString() : ""));
+        const intentos = datos.intentos || [];
+        $("#segCount").textContent = intentos.length + " registros";
+
+        if (!intentos.length) {
+            body.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+                <i class="fa-solid fa-shield-halved"></i><strong>Sin intentos registrados</strong>
+                <p>Aquí aparecerán los inicios de sesión correctos, fallidos y cierres de sesión.</p></div></td></tr>`;
+            return;
+        }
+
+        body.innerHTML = intentos.map((i) => `
+            <tr>
+                <td>${fecha(i.FechaIntento)}</td>
+                <td>${escapar(i.Usuario || "—")}</td>
+                <td>${escapar(i.CorreoIntentado || "—")}</td>
+                <td><span class="pill ${i.Exitoso ? "green" : "red"}">${i.Exitoso ? "Exitoso" : "Fallido"}</span></td>
+                <td>${escapar(i.Motivo || "—")}</td>
+                <td class="cell-muted">${escapar(i.DireccionIP || "—")}</td>
+            </tr>`).join("");
+    } catch (error) {
+        $("#segCount").textContent = "Error de consulta";
+        body.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i><strong>No fue posible cargar los intentos</strong>
+            <p>${escapar(error.message)}</p></div></td></tr>`;
+    }
+}
+
+async function cargarAuditoria() {
+    const body = $("#segBody");
+    body.innerHTML = `<tr><td colspan="7" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Consultando...</td></tr>`;
+
+    try {
+        const params = new URLSearchParams();
+        if ($("#audBuscar").value.trim()) params.set("buscar", $("#audBuscar").value.trim());
+        if ($("#audAccion").value) params.set("accion", $("#audAccion").value);
+        if ($("#audDesde").value) params.set("desde", $("#audDesde").value + "T00:00:00.000Z");
+
+        const datos = await api("/api/seguridad/auditoria" + (params.toString() ? "?" + params.toString() : ""));
+        const eventos = datos.eventos || [];
+
+        const selAccion = $("#audAccion");
+        if (selAccion.options.length <= 1) {
+            (datos.acciones || []).forEach((a) => selAccion.add(new Option(a, a)));
+        }
+
+        $("#segCount").textContent = eventos.length + " eventos";
+
+        if (!eventos.length) {
+            body.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+                <i class="fa-solid fa-clipboard-list"></i><strong>Sin eventos de auditoría</strong>
+                <p>Las operaciones importantes del sistema se registrarán aquí.</p></div></td></tr>`;
+            return;
+        }
+
+        body.innerHTML = eventos.map((a) => `
+            <tr>
+                <td>${fecha(a.FechaAccion)}</td>
+                <td>${escapar(a.Usuario || "Sistema")}</td>
+                <td><span class="pill purple">${escapar(a.Accion)}</span></td>
+                <td>${escapar(a.TablaAfectada || "—")}</td>
+                <td>${escapar(a.RegistroId || "—")}</td>
+                <td class="cell-wrap">${escapar(a.Detalle || "—")}</td>
+                <td class="cell-muted">${escapar(a.DireccionIP || "—")}</td>
+            </tr>`).join("");
+    } catch (error) {
+        $("#segCount").textContent = "Error de consulta";
+        body.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i><strong>No fue posible cargar la auditoría</strong>
+            <p>${escapar(error.message)}</p></div></td></tr>`;
+    }
+}
+
+/* ============================================================
+   Configuración
+   ============================================================ */
+
+const CLAVE_PREFS = "nissan.panel.prefs";
+
+function obtenerPrefs() {
+    try {
+        return JSON.parse(localStorage.getItem(CLAVE_PREFS) || "{}");
+    } catch (error) {
+        return {};
+    }
+}
+
+function guardarPrefs(prefs) {
+    localStorage.setItem(CLAVE_PREFS, JSON.stringify(prefs));
+}
+
+let intervaloAuto;
+
+function aplicarPrefs() {
+    const prefs = obtenerPrefs();
+
+    document.body.classList.toggle("compact", Boolean(prefs.compact));
+
+    const chkCompact = $("#prefCompact");
+    const chkAnim = $("#prefAnimaciones");
+    const chkAuto = $("#prefAuto");
+
+    if (chkCompact) chkCompact.checked = Boolean(prefs.compact);
+    if (chkAnim) chkAnim.checked = prefs.animaciones !== false;
+    if (chkAuto) chkAuto.checked = Boolean(prefs.auto);
+
+    clearInterval(intervaloAuto);
+    if (prefs.auto) {
+        intervaloAuto = setInterval(() => {
+            if (state.seccion === "inicio") {
+                cargarDashboard().catch(() => {});
+            }
+        }, 60000);
+    }
+}
+
+async function cargarConfiguracion() {
+    const cont = $("#configInfo");
+    const u = state.usuario || {};
+
+    let estadoBackend = "Verificando...";
+
+    try {
+        await api("/api/auth/session");
+        estadoBackend = "Conectado";
+    } catch (error) {
+        estadoBackend = "No disponible";
+    }
+
+    cont.innerHTML = `
+        <div class="info-row"><span>Usuario</span><strong>${escapar(u.nombre || "—")}</strong></div>
+        <div class="info-row"><span>Correo</span><strong>${escapar(u.correo || "—")}</strong></div>
+        <div class="info-row"><span>Rol</span><strong>${escapar(u.rol || "—")}</strong></div>
+        <div class="info-row"><span>Backend / SQL Server</span><strong>${escapar(estadoBackend)}</strong></div>
+        <div class="info-row"><span>Fecha y hora</span><strong>${fecha(new Date().toISOString())}</strong></div>
+        <div class="info-row"><span>Versión del panel</span><strong>1.0.0</strong></div>
+    `;
+}
+
+/* ============================================================
+   Mi contraseña
+   ============================================================ */
+
+async function cambiarPassword(evento) {
+    evento.preventDefault();
+
+    const form = $("#passwordForm");
+    if (!form.reportValidity()) return;
+
+    const actual = $("#passActual").value;
+    const nueva = $("#passNueva").value;
+    const confirmar = $("#passConfirmar").value;
+
+    if (nueva !== confirmar) {
+        mostrarToast("La nueva contraseña y su confirmación no coinciden.", "error");
+        return;
+    }
+
+    const boton = $("#passSubmit");
+    boton.disabled = true;
+    boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Actualizando...';
+
+    try {
+        const datos = await api("/api/mi-cuenta/password", {
+            method: "POST",
+            body: JSON.stringify({ actual, nueva, confirmar })
+        });
+
+        form.reset();
+        mostrarToast(datos.mensaje || "Contraseña actualizada correctamente.", "success");
+
+        if (state.usuario) state.usuario.debeCambiarPassword = false;
+
+        if ($$(".notice.info").length) ocultarAviso();
+    } catch (error) {
+        mostrarToast(error.message, "error");
+    } finally {
+        boton.disabled = false;
+        boton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Actualizar contraseña';
+    }
+}
+
+/* ============================================================
+   Eventos
+   ============================================================ */
+
+function configurarEventos() {
+    // Navegación
+    $$(".menu a").forEach((a) => {
+        a.addEventListener("click", (e) => {
+            e.preventDefault();
+            navegar(a.dataset.section);
+        });
+    });
+
+    // Botones "Actualizar" por sección
+    $$("[data-refresh]").forEach((boton) => {
+        boton.addEventListener("click", () => {
+            const seccion = boton.dataset.refresh;
+            if (SECCIONES[seccion] && typeof SECCIONES[seccion].cargar === "function") {
+                boton.disabled = true;
+                const original = boton.innerHTML;
+                boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Actualizando...';
+                SECCIONES[seccion].cargar()
+                    .catch((error) => mostrarToast(error.message, "error"))
+                    .finally(() => { boton.disabled = false; boton.innerHTML = original; });
+            }
+        });
+    });
+
+    $("#refreshDashboard").addEventListener("click", async () => {
+        const boton = $("#refreshDashboard");
+        boton.disabled = true;
+        boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Actualizando...';
+        try {
+            await cargarDashboard();
+            mostrarToast("Resumen actualizado.", "success");
+        } catch (error) {
+            mostrarToast(error.message, "error");
+        } finally {
+            boton.disabled = false;
+            boton.innerHTML = '<i class="fa-solid fa-rotate"></i> Actualizar';
+        }
+    });
+
+    // Cerrar sesión
+    $("#logoutButton").addEventListener("click", cerrarSesion);
+
+    // ---- Clientes ----
+    $("#clientesBuscarBtn").addEventListener("click", () => cargarClientes().catch((e) => mostrarToast(e.message, "error")));
+    $("#clientesBuscar").addEventListener("input", () => {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(() => cargarClientes().catch(() => {}), 350);
+    });
+    $("#clientesLimpiar").addEventListener("click", () => {
+        $("#clientesBuscar").value = "";
+        cargarClientes().catch(() => {});
+    });
+    $("#clientesBody").addEventListener("click", (e) => {
+        const boton = e.target.closest("[data-ver-cliente]");
+        if (!boton) return;
+        const telefono = boton.dataset.verCliente;
+        navegar("conversaciones");
+        $("#convBuscar").value = telefono;
+        state.convPagina = 1;
+        cargarConversaciones().catch(() => {});
+    });
+
+    // ---- Conversaciones ----
+    $("#convBuscar").addEventListener("input", () => {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(() => {
+            state.convPagina = 1;
+            cargarConversaciones().catch(() => {});
+        }, 350);
+    });
+    $("#convEstado").addEventListener("change", () => { state.convPagina = 1; cargarConversaciones().catch(() => {}); });
+    $("#convCanal").addEventListener("change", () => { state.convPagina = 1; cargarConversaciones().catch(() => {}); });
+    $("#convLimpiar").addEventListener("click", () => {
+        $("#convBuscar").value = "";
+        $("#convEstado").value = "";
+        $("#convCanal").value = "";
+        state.convPagina = 1;
+        cargarConversaciones().catch(() => {});
+    });
+    $("#convPrev").addEventListener("click", () => {
+        if (state.convPagina > 1) { state.convPagina--; cargarConversaciones().catch(() => {}); }
+    });
+    $("#convNext").addEventListener("click", () => {
+        const totalPaginas = Math.max(1, Math.ceil(state.convTotal / state.convPorPagina));
+        if (state.convPagina < totalPaginas) { state.convPagina++; cargarConversaciones().catch(() => {}); }
+    });
+    $("#convBody").addEventListener("click", (e) => {
+        const boton = e.target.closest("[data-ver-conv]");
+        if (boton) verConversacion(Number(boton.dataset.verConv));
+    });
+
+    // ---- Citas ----
+    $("#addCitaButton").addEventListener("click", () => {
+        if (!state.puedeCitas) {
+            mostrarToast("No tienes permisos para registrar citas.", "error");
+            return;
+        }
+        modalCita(null);
+    });
+    $("#citasBuscar").addEventListener("input", () => {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(() => cargarCitas().catch(() => {}), 350);
+    });
+    $("#citasEstado").addEventListener("change", () => cargarCitas().catch(() => {}));
+    $("#citasDesde").addEventListener("change", () => cargarCitas().catch(() => {}));
+    $("#citasHasta").addEventListener("change", () => cargarCitas().catch(() => {}));
+    $("#citasLimpiar").addEventListener("click", () => {
+        $("#citasBuscar").value = "";
+        $("#citasEstado").value = "";
+        $("#citasDesde").value = "";
+        $("#citasHasta").value = "";
+        cargarCitas().catch(() => {});
+    });
+    $("#citasBody").addEventListener("click", (e) => {
+        const editar = e.target.closest("[data-editar-cita]");
+        if (editar) {
+            const cita = state.citas.find((c) => Number(c.CitaId) === Number(editar.dataset.editarCita));
+            if (cita) modalCita(cita);
+            return;
+        }
+        const estado = e.target.closest("[data-estado-cita]");
+        if (estado) {
+            const cita = state.citas.find((c) => Number(c.CitaId) === Number(estado.dataset.estadoCita));
+            if (cita) modalEstadoCita(cita);
+        }
+    });
+
+    // ---- Inventario ----
+    $("#addVehicleButton").addEventListener("click", () => abrirModalVehiculo());
+    $("#vehicleTableBody").addEventListener("click", (evento) => {
+        const boton = evento.target.closest("button[data-action]");
+        if (!boton) return;
+        const id = Number(boton.dataset.id);
+        if (boton.dataset.action === "edit") {
+            const vehiculo = state.vehiculos.find((v) => Number(v.VehiculoId) === id);
+            if (vehiculo) abrirModalVehiculo(vehiculo);
+        }
+        if (boton.dataset.action === "toggle") {
+            cambiarActivoVehiculo(id, boton.dataset.active === "true");
+        }
+    });
+    $("#clearFiltersButton").addEventListener("click", () => {
+        $("#searchInput").value = "";
+        $("#statusFilter").value = "";
+        $("#activeFilter").value = "1";
+        cargarInventario();
+    });
+    $("#searchInput").addEventListener("input", () => {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(cargarInventario, 300);
+    });
+    $("#statusFilter").addEventListener("change", cargarInventario);
+    $("#activeFilter").addEventListener("change", cargarInventario);
+
+    // ---- Historial ----
+    $("#historialTabs").addEventListener("click", (e) => {
+        const tab = e.target.closest(".tab");
+        if (!tab) return;
+        if (tab.hasAttribute("data-admin") && !state.esAdmin) {
+            mostrarToast("No tienes permisos para ese historial.", "error");
+            return;
+        }
+        $$("#historialTabs .tab").forEach((t) => t.classList.toggle("active", t === tab));
+        state.histTipo = tab.dataset.tipo;
+        cargarHistorial().catch((error) => mostrarToast(error.message, "error"));
+    });
+    $("#histBuscar").addEventListener("input", () => {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(() => cargarHistorial().catch(() => {}), 350);
+    });
+    $("#histDesde").addEventListener("change", () => cargarHistorial().catch(() => {}));
+    $("#histHasta").addEventListener("change", () => cargarHistorial().catch(() => {}));
+    $("#histLimpiar").addEventListener("click", () => {
+        $("#histBuscar").value = "";
+        $("#histDesde").value = "";
+        $("#histHasta").value = "";
+        cargarHistorial().catch(() => {});
+    });
+
+    // ---- Usuarios ----
+    $("#addUserButton").addEventListener("click", () => {
+        if (!state.esAdmin) return;
+        modalUsuario(null);
+    });
+    $("#usuariosBuscar").addEventListener("input", () => {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(() => cargarUsuarios().catch(() => {}), 350);
+    });
+    $("#usuariosRol").addEventListener("change", () => cargarUsuarios().catch(() => {}));
+    $("#usuariosActivo").addEventListener("change", () => cargarUsuarios().catch(() => {}));
+    $("#usuariosLimpiar").addEventListener("click", () => {
+        $("#usuariosBuscar").value = "";
+        $("#usuariosRol").value = "";
+        $("#usuariosActivo").value = "";
+        cargarUsuarios().catch(() => {});
+    });
+    $("#usuariosBody").addEventListener("click", (e) => {
+        const editar = e.target.closest("[data-editar-user]");
+        if (editar) {
+            const u = state.usuarios.find((x) => Number(x.UsuarioId) === Number(editar.dataset.editarUser));
+            if (u) modalUsuario(u);
+            return;
+        }
+        const reset = e.target.closest("[data-reset-user]");
+        if (reset) {
+            const u = state.usuarios.find((x) => Number(x.UsuarioId) === Number(reset.dataset.resetUser));
+            if (u) modalResetPassword(u);
+            return;
+        }
+        const toggle = e.target.closest("[data-toggle-user]");
+        if (toggle) {
+            cambiarActivoUsuario(Number(toggle.dataset.toggleUser), toggle.dataset.active === "true");
+        }
+    });
+
+    // ---- Seguridad ----
+    $("#seguridadTabs").addEventListener("click", (e) => {
+        const tab = e.target.closest(".tab");
+        if (!tab) return;
+        $$("#seguridadTabs .tab").forEach((t) => t.classList.toggle("active", t === tab));
+        state.segVista = tab.dataset.vista;
+
+        const esIntentos = state.segVista === "intentos";
+        $("#segFiltrosIntentos").style.display = esIntentos ? "grid" : "none";
+        $("#segFiltrosAuditoria").style.display = esIntentos ? "none" : "grid";
+        $("#segTitulo").textContent = esIntentos ? "Intentos de acceso" : "Auditoría";
+
+        $("#segThead").innerHTML = esIntentos
+            ? `<tr><th>Fecha</th><th>Usuario</th><th>Correo intentado</th><th>Resultado</th><th>Motivo</th><th>IP</th></tr>`
+            : `<tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Tabla</th><th>Registro</th><th>Detalle</th><th>IP</th></tr>`;
+
+        const columnas = esIntentos ? 6 : 7;
+        $("#segBody").innerHTML = `<tr><td colspan="${columnas}" class="loading-row">
+            <i class="fa-solid fa-spinner fa-spin"></i> Consultando...</td></tr>`;
+
+        cargarSeguridad().catch((error) => mostrarToast(error.message, "error"));
+    });
+
+    $("#segBuscar").addEventListener("input", () => {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(() => cargarIntentos().catch(() => {}), 350);
+    });
+    $("#segResultado").addEventListener("change", () => cargarIntentos().catch(() => {}));
+    $("#segDesde").addEventListener("change", () => cargarIntentos().catch(() => {}));
+    $("#segLimpiar").addEventListener("click", () => {
+        $("#segBuscar").value = "";
+        $("#segResultado").value = "";
+        $("#segDesde").value = "";
+        cargarIntentos().catch(() => {});
+    });
+
+    $("#audBuscar").addEventListener("input", () => {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(() => cargarAuditoria().catch(() => {}), 350);
+    });
+    $("#audAccion").addEventListener("change", () => cargarAuditoria().catch(() => {}));
+    $("#audDesde").addEventListener("change", () => cargarAuditoria().catch(() => {}));
+    $("#audLimpiar").addEventListener("click", () => {
+        $("#audBuscar").value = "";
+        $("#audAccion").value = "";
+        $("#audDesde").value = "";
+        cargarAuditoria().catch(() => {});
+    });
+
+    // ---- Mi contraseña ----
+    $("#passwordForm").addEventListener("submit", cambiarPassword);
+
+    // ---- Preferencias ----
+    $("#prefCompact").addEventListener("change", (e) => {
+        const prefs = obtenerPrefs();
+        prefs.compact = e.target.checked;
+        guardarPrefs(prefs);
+        aplicarPrefs();
+    });
+    $("#prefAnimaciones").addEventListener("change", (e) => {
+        const prefs = obtenerPrefs();
+        prefs.animaciones = e.target.checked;
+        guardarPrefs(prefs);
+    });
+    $("#prefAuto").addEventListener("change", (e) => {
+        const prefs = obtenerPrefs();
+        prefs.auto = e.target.checked;
+        guardarPrefs(prefs);
+        aplicarPrefs();
+        mostrarToast(e.target.checked
+            ? "Auto-actualización activada."
+            : "Auto-actualización desactivada.", "success");
+    });
+
+    // Navegación por hash (botón atrás/adelante).
+    window.addEventListener("hashchange", () => {
+        const seccion = window.location.hash.replace("#", "");
+        if (SECCIONES[seccion] && seccion !== state.seccion) navegar(seccion);
+    });
+}
+
+async function cerrarSesion() {
+    const boton = $("#logoutButton");
+    boton.disabled = true;
+    boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cerrando sesión...';
+
+    try {
+        await fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+    } catch (error) {
+        console.error("Error cerrando sesión:", error);
+    }
+
+    window.location.replace("/login.html");
+}
+
+/* ============================================================
+   Arranque
+   ============================================================ */
+
+async function iniciarPanel() {
+    configurarEventos();
+    aplicarPrefs();
+
+    try {
+        const autenticado = await verificarSesion();
+        if (!autenticado) return;
+
+        await cargarModelos().catch((error) => console.error(error));
+        await cargarOpcionesConversaciones();
+        await cargarOpcionesCitas();
+
+        const inicial = window.location.hash.replace("#", "");
+        navegar(SECCIONES[inicial] ? inicial : "inicio");
+    } catch (error) {
+        console.error("Error inicializando el panel:", error);
+        mostrarAviso(error.message || "No fue posible iniciar el panel administrativo.");
+    }
+}
+
+iniciarPanel();
+</script>
+</body>
+</html>
