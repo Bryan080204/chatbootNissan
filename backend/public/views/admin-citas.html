@@ -8,8 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/admin-nissan.css">
+    <link rel="stylesheet" href="/css/admin-app.css">
 </head>
-<body class="app-body">
+<body class="app-body" data-page="citas">
     <div class="app-shell">
         <aside class="sidebar">
             <div class="sidebar-brand">
@@ -46,94 +47,115 @@
                     </div>
                 </div>
                 <div class="topbar-right">
-                    <div class="topbar-pill"><i class="fa-solid fa-clock"></i> 8 Pendientes</div>
-                    <div class="topbar-pill"><i class="fa-solid fa-circle-check"></i> 12 Confirmadas</div>
-                    <div class="topbar-pill"><i class="fa-solid fa-ban"></i> 3 Canceladas</div>
+                    <div class="topbar-pill"><i class="fa-solid fa-clock"></i> <span id="statPend">0</span> Pendientes</div>
+                    <div class="topbar-pill"><i class="fa-solid fa-circle-check"></i> <span id="statConf">0</span> Confirmadas</div>
+                    <div class="topbar-pill"><i class="fa-solid fa-ban"></i> <span id="statCanc">0</span> Canceladas</div>
                 </div>
             </header>
             <main class="main-content">
-                <div class="conversation-panel">
-                    <div class="conversation-header">
-                        <div class="conversation-user">
-                            <div class="chat-avatar"><i class="fa-solid fa-calendar-days"></i></div>
-                            <div class="conversation-meta">
-                                <h3>Listado de Citas</h3>
-                                <div class="conversation-status" style="color: var(--gris-texto);">23 Registros</div>
+                <div class="page-head">
+                    <div class="page-head-left">
+                        <h1>Agenda del taller</h1>
+                        <p>Gestiona, confirma o cancela las citas registradas desde el chatbot.</p>
+                    </div>
+                    <div class="page-actions">
+                        <button type="button" class="btn btn-red" id="btnNuevaCita" data-open="modalNuevaCita"><i class="fa-solid fa-calendar-plus"></i> Nueva cita</button>
+                    </div>
+                </div>
+
+                <div class="ui-card">
+                    <div class="table-toolbar">
+                        <div class="search-field">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="citasSearch" placeholder="Buscar por cliente, teléfono, servicio o folio...">
+                        </div>
+                        <div class="toolbar-group">
+                            <div class="chip-filters" id="citasFilters">
+                                <button type="button" class="chip active" data-filter="todos"><i class="fa-solid fa-list"></i> Todas (<span id="statAll">0</span>)</button>
+                                <button type="button" class="chip" data-filter="pendiente"><i class="fa-solid fa-clock"></i> Pendientes</button>
+                                <button type="button" class="chip" data-filter="confirmada"><i class="fa-solid fa-circle-check"></i> Confirmadas</button>
+                                <button type="button" class="chip" data-filter="cancelada"><i class="fa-solid fa-ban"></i> Canceladas</button>
                             </div>
                         </div>
-                        <div class="chat-filters">
-                            <button type="button" class="filter-chip active">Todos</button>
-                            <button type="button" class="filter-chip">Pendientes</button>
-                            <button type="button" class="filter-chip">Confirmadas</button>
-                            <button type="button" class="filter-chip">Canceladas</button>
-                            <button type="button" class="filter-chip">Agendadas</button>
-                        </div>
                     </div>
-                    <div class="messages-area" style="padding: 0; flex: 1;">
-                        <table class="table-mini" style="width: 100%; padding: 0 24px;">
+                    <div class="table-scroll">
+                        <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Cliente</th>
+                                    <th>Folio</th>
+                                    <th>Cliente / Servicio</th>
                                     <th>Teléfono</th>
-                                    <th>Servicio</th>
                                     <th>Fecha</th>
                                     <th>Hora</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#C-001</td>
-                                    <td>Juan Ramírez</td>
-                                    <td>951 234 5678</td>
-                                    <td>Mantenimiento General</td>
-                                    <td>12 Oct 2026</td>
-                                    <td>09:00 AM</td>
-                                    <td><span class="status-pill pending"><i class="fa-solid fa-clock"></i> Pendiente</span></td>
-                                    <td>
-                                        <div style="display: flex; gap: 8px;">
-                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-circle-check"></i></button>
-                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-ban"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#C-002</td>
-                                    <td>María Reyes</td>
-                                    <td>951 456 7890</td>
-                                    <td>Cotización Refacción</td>
-                                    <td>12 Oct 2026</td>
-                                    <td>11:00 AM</td>
-                                    <td><span class="status-pill confirmed"><i class="fa-solid fa-circle-check"></i> Confirmada</span></td>
-                                    <td>
-                                        <div style="display: flex; gap: 8px;">
-                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-pen"></i></button>
-                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-ban"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#C-003</td>
-                                    <td>Carlos López</td>
-                                    <td>951 678 9012</td>
-                                    <td>Revisión de Frenos</td>
-                                    <td>11 Oct 2026</td>
-                                    <td>03:00 PM</td>
-                                    <td><span class="status-pill cancelled"><i class="fa-solid fa-ban"></i> Cancelada</span></td>
-                                    <td>
-                                        <div style="display: flex; gap: 8px;">
-                                            <button type="button" class="icon-btn" style="width: 34px; height: 34px;"><i class="fa-solid fa-rotate-left"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
+                            <tbody id="citasBody"></tbody>
                         </table>
+                    </div>
+                    <div class="table-toolbar" style="border-top:1px solid var(--gris-borde); border-bottom:none; justify-content:flex-end;">
+                        <span class="ui-card-sub" id="citasCount">0 registros</span>
                     </div>
                 </div>
             </main>
         </div>
     </div>
+
+    <!-- Modal: Nueva cita -->
+    <div class="modal-overlay" id="modalNuevaCita">
+        <div class="modal">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-calendar-plus"></i> Nueva cita</h3>
+                <button type="button" class="modal-close" data-close="modalNuevaCita"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="formNuevaCita">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-field full">
+                            <label class="form-label-alt">Nombre del cliente</label>
+                            <div class="input-group"><i class="fa-solid fa-user"></i><input type="text" name="cliente" placeholder="Nombre completo"></div>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label-alt">Teléfono</label>
+                            <div class="input-group"><i class="fa-solid fa-phone"></i><input type="text" name="tel" placeholder="951 000 0000"></div>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label-alt">Servicio</label>
+                            <div class="input-group"><i class="fa-solid fa-screwdriver-wrench"></i><input type="text" name="servicio" placeholder="Ej. Mantenimiento"></div>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label-alt">Fecha</label>
+                            <div class="input-group"><i class="fa-solid fa-calendar"></i><input type="date" name="fecha"></div>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label-alt">Hora</label>
+                            <div class="input-group"><i class="fa-solid fa-clock"></i><input type="time" name="hora"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-light" data-close="modalNuevaCita">Cancelar</button>
+                    <button type="submit" class="btn btn-red"><i class="fa-solid fa-floppy-disk"></i> Registrar cita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Detalle -->
+    <div class="modal-overlay" id="modalDetalleCita">
+        <div class="modal">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-circle-info"></i> Detalle de la cita</h3>
+                <button type="button" class="modal-close" data-close="modalDetalleCita"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="detalleCitaBody" style="gap:12px;"></div>
+            <div class="modal-foot">
+                <button type="button" class="btn btn-dark" data-close="modalDetalleCita">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/admin.js"></script>
 </body>
 </html>

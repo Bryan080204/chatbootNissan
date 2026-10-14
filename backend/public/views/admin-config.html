@@ -8,8 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/admin-nissan.css">
+    <link rel="stylesheet" href="/css/admin-app.css">
 </head>
-<body class="app-body">
+<body class="app-body" data-page="config">
     <div class="app-shell">
         <aside class="sidebar">
             <div class="sidebar-brand">
@@ -42,52 +43,79 @@
                 <div class="topbar-left">
                     <div>
                         <div class="topbar-title">Configuración</div>
-                        <div class="topbar-subtitle">Cambio de contraseña y ajustes visuales</div>
+                        <div class="topbar-subtitle">Seguridad y ajustes del sistema</div>
                     </div>
                 </div>
             </header>
-            <main class="main-content" style="max-width: 720px;">
-                <div class="conversation-panel">
-                    <div class="conversation-header">
-                        <div class="conversation-user">
-                            <div class="chat-avatar"><i class="fa-solid fa-key"></i></div>
-                            <div class="conversation-meta">
-                                <h3>Cambiar Contraseña</h3>
-                                <div class="conversation-status" style="color: var(--gris-texto);"><i class="fa-solid fa-lock"></i> Solo para administradores</div>
+            <main class="main-content">
+                <div class="page-head">
+                    <div class="page-head-left">
+                        <h1>Ajustes de la cuenta</h1>
+                        <p>Administra tu contraseña y revisa la información del sistema.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-1-1">
+                    <div class="ui-card">
+                        <div class="ui-card-head">
+                            <h3><i class="fa-solid fa-key"></i> Cambiar contraseña</h3>
+                            <span class="ui-card-sub"><i class="fa-solid fa-lock" style="color:var(--nissan-rojo);"></i> Solo administradores</span>
+                        </div>
+                        <div class="ui-card-body">
+                            <form id="formPassword" style="display:flex; flex-direction:column; gap:14px;">
+                                <div class="form-field">
+                                    <label class="form-label-alt"><i class="fa-solid fa-lock"></i> Contraseña actual</label>
+                                    <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" name="actual" placeholder="Ingresa tu contraseña actual"></div>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label-alt"><i class="fa-solid fa-key"></i> Nueva contraseña</label>
+                                    <div class="input-group"><i class="fa-solid fa-key"></i><input type="password" name="nueva" placeholder="Mínimo 8 caracteres"></div>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label-alt"><i class="fa-solid fa-key"></i> Confirmar nueva contraseña</label>
+                                    <div class="input-group"><i class="fa-solid fa-key"></i><input type="password" name="confirm" placeholder="Repite la nueva contraseña"></div>
+                                </div>
+                                <div style="display:flex; justify-content:flex-end;">
+                                    <button type="submit" class="btn btn-red"><i class="fa-solid fa-floppy-disk"></i> Guardar cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="ui-card">
+                        <div class="ui-card-head">
+                            <h3><i class="fa-solid fa-shield-halved"></i> Recomendaciones</h3>
+                        </div>
+                        <div class="ui-card-body">
+                            <div class="activity-detalle" style="font-size:13px; line-height:1.9;">
+                                <div><i class="fa-solid fa-circle-check" style="color:var(--verde);"></i> Usa al menos 8 caracteres.</div>
+                                <div><i class="fa-solid fa-circle-check" style="color:var(--verde);"></i> Combina mayúsculas, minúsculas y números.</div>
+                                <div><i class="fa-solid fa-circle-check" style="color:var(--verde);"></i> Incluye un símbolo especial.</div>
+                                <div><i class="fa-solid fa-circle-check" style="color:var(--verde);"></i> Evita datos personales o palabras comunes.</div>
                             </div>
                         </div>
                     </div>
-                    <div class="messages-area" style="flex-direction: column; align-items: stretch;">
-                        <form style="display: flex; flex-direction: column; gap: 16px;">
-                            <div class="form-field">
-                                <label class="form-label-alt">Contraseña Actual</label>
-                                <div class="input-group">
-                                    <i class="fa-solid fa-lock"></i>
-                                    <input type="password" placeholder="Ingresa tu contraseña actual">
-                                </div>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label-alt">Nueva Contraseña</label>
-                                <div class="input-group">
-                                    <i class="fa-solid fa-key"></i>
-                                    <input type="password" placeholder="Ingresa nueva contraseña">
-                                </div>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label-alt">Confirmar Nueva Contraseña</label>
-                                <div class="input-group">
-                                    <i class="fa-solid fa-key"></i>
-                                    <input type="password" placeholder="Repite la nueva contraseña">
-                                </div>
-                            </div>
-                            <div style="display: flex; justify-content: flex-end;">
-                                <button type="button" class="btn-primary" style="border-radius: 12px; padding: 12px 26px; box-shadow: none;"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios (Visual)</button>
-                            </div>
-                        </form>
+                </div>
+
+                <div class="ui-card">
+                    <div class="ui-card-head">
+                        <h3><i class="fa-solid fa-microchip"></i> Información del sistema</h3>
+                    </div>
+                    <div class="ui-card-body">
+                        <div class="grid grid-3">
+                            <div><div class="detail-label">Servicio</div><div class="detail-value">Chatbot Nissan</div></div>
+                            <div><div class="detail-label">Agencia</div><div class="detail-value">Nissan Oaxaca</div></div>
+                            <div><div class="detail-label">Versión</div><div class="detail-value">1.0.0</div></div>
+                            <div><div class="detail-label">Canal</div><div class="detail-value">WhatsApp Cloud API</div></div>
+                            <div><div class="detail-label">Motor IA</div><div class="detail-value">Gemini</div></div>
+                            <div><div class="detail-label">Estado</div><div class="detail-value"><span class="pill activo"><i class="fa-solid fa-circle"></i> Operativo</span></div></div>
+                        </div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
+
+    <script src="/js/admin.js"></script>
 </body>
 </html>
